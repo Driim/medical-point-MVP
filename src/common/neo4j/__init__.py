@@ -12,5 +12,6 @@ def initialize_database_middleware(
     health_checks: list,
 ) -> None:
     application.add_middleware(Neo4JSessionMiddleware, config=config)
+    # setting default Router
     application.router.route_class = TransactionalRouter
     health_checks.append(check_database_connection)

@@ -3,8 +3,8 @@ from src.common.health_checks import register_health_checks
 from src.common.logger import initialize_logger
 from src.common.context import initialize_context_middleware
 from src.common.neo4j import initialize_database_middleware
-from src.organizations.configuration import Configuration
-from src.organizations.controllers.organizations import register_organizations_router
+from src.structures.configuration import Configuration
+from src.structures.controllers.organizations import register_organizations_router
 
 
 def mock_health_check() -> bool:
@@ -14,7 +14,7 @@ def mock_health_check() -> bool:
 def initialize_application(config: Configuration):
     initialize_logger(config.logging)
     application = FastAPI(
-        title="Organization Units API",
+        title="Structures service",
         version="0.1",
     )
 
