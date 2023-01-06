@@ -1,7 +1,9 @@
 import logging.config
-from uvicorn.logging import DefaultFormatter
 from typing import Callable
-from src.common.logger.configuration import LogLevel, LogType, LoggerConfiguration
+
+from uvicorn.logging import DefaultFormatter
+
+from src.common.logger.configuration import LoggerConfiguration, LogLevel, LogType
 
 
 def mock_configuration_generator(level: LogLevel):

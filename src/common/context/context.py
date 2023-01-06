@@ -1,6 +1,7 @@
+import logging
+import time
 from contextlib import contextmanager
 from contextvars import ContextVar
-import logging
 from typing import ContextManager, Optional
 
 from fastapi import FastAPI
@@ -22,6 +23,8 @@ class AsyncContextMiddleware(BaseHTTPMiddleware):
     def context_manager(self, initial: Optional[dict] = None) -> ContextManager:
         global _context
 
+        start_time = time.time()
+
         if initial is None:
             initial = {}
 
@@ -30,7 +33,9 @@ class AsyncContextMiddleware(BaseHTTPMiddleware):
         try:
             yield
         finally:
-            logger.debug("Request removed from context")
+            logger.debug(
+                f"Request removed from context, time {time.time() - start_time}",
+            )
             _context.reset(token)
 
     async def dispatch(
@@ -45,6 +50,12 @@ class AsyncContextMiddleware(BaseHTTPMiddleware):
 def get_request_context() -> dict:
     global _context
     return _context.get()
+
+
+def get_request() -> Request:
+    global _context
+    ctx = _context.get()
+    return ctx[REQ]
 
 
 def initialize_context_middleware(application: FastAPI) -> None:

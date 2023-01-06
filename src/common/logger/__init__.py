@@ -1,1 +1,1 @@
-from .logger import initialize_logger
+from .logger import initialize_logger  # noqa

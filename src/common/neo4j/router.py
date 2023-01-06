@@ -1,9 +1,11 @@
 import logging
-
 from typing import Callable
-from fastapi.routing import APIRoute
+
 from fastapi import Request, Response, status
+from fastapi.routing import APIRoute
 from neo4j import AsyncTransaction
+
+from src.common.context import get_request_context
 
 from .middleware import get_session
 
@@ -11,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class TransactionalRouter(APIRoute):
+    KEY = "neo4j_transaction"
+
     async def _commit_or_rollback_transaction(
         self,
         transactional: bool,
@@ -47,6 +51,9 @@ class TransactionalRouter(APIRoute):
                 session = get_session()
                 transaction = await session.begin_transaction()
 
+                context = get_request_context()
+                context[self.KEY] = transaction
+
             try:
                 response = await original_route_handler(request)
                 code = response.status_code
@@ -60,7 +67,15 @@ class TransactionalRouter(APIRoute):
                 if transactional:
                     await transaction.rollback()
                 raise exc
+            finally:
+                if transactional:
+                    del context[self.KEY]
 
             return response
 
         return custom_route_handler
+
+
+def get_transaction() -> AsyncTransaction | None:
+    context = get_request_context()
+    return context.get(TransactionalRouter.KEY, None)

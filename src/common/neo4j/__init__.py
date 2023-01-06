@@ -1,9 +1,13 @@
-from .configuration import Neo4JConfiguration
-from .middleware import Neo4JSessionMiddleware, get_session, check_database_connection
-from .decorator import Transactional
-from .router import TransactionalRouter
-
 from fastapi import FastAPI
+
+from .configuration import Neo4JConfiguration
+from .decorator import Transactional  # noqa
+from .middleware import (  # noqa
+    Neo4JSessionMiddleware,
+    check_database_connection,
+    get_session,
+)
+from .router import TransactionalRouter, get_transaction  # noqa
 
 
 def initialize_database_middleware(

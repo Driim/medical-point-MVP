@@ -1,1 +1,1 @@
-from .context import initialize_context_middleware, get_request_context
+from .context import get_request_context, initialize_context_middleware  # noqa

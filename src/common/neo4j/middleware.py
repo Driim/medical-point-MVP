@@ -7,6 +7,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from src.common.context import get_request_context
+
 from .configuration import Neo4JConfiguration
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,9 @@ class Neo4JSessionMiddleware(BaseHTTPMiddleware):
         request: Request,
         next: RequestResponseEndpoint,
     ) -> Response:
-        # access_mode = "READ" if transactional is False else "WRITE"
+        # unfortunately we can not decide here should we use READ or WRITE connection
+        # to do that we should put in context driver and decide it inside
+        # transactional router, will see how it goes
         session = self._driver.session()
         context = get_request_context()
         context[self.KEY] = session

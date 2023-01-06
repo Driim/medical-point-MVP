@@ -27,6 +27,7 @@ pep8-naming = "^0.13.2"
 flake8-cognitive-complexity = "^0.1.0"
 flake8-annotations-coverage = "^0.0.6"
 pre-commit = "^2.20.0"
+isort = "^5.11.4"
 
 [build-system]
 requires = ["poetry-core"]

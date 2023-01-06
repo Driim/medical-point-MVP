@@ -1,6 +1,7 @@
 .vscode/
 .env
 .venv
+.fleet
 __pycache__/
 *.py[cod]
 *$py.class

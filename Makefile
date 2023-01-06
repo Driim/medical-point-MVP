@@ -1,5 +1,6 @@
  
 format:
+	poetry run isort src tests --profile black
 	poetry run black src tests --safe
 
 lint:
