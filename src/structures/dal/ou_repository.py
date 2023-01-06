@@ -51,9 +51,7 @@ class OrganizationUnitsRepository:
             lines.append(f"{key}: ${key}")
 
         query += ", ".join(lines)
-        query += "})"
-        query += "-[r:CHILD_OF]->(p)"
-        query += "RETURN ou"
+        query += "})-[r:CHILD_OF]->(p) RETURN ou"
 
         params["parent_id"] = parent_id
 
@@ -109,6 +107,8 @@ class OrganizationUnitsRepository:
     ) -> OrganizationUnitPaginated:
         params = transform_to_dict(dto)
 
+        logger.warn(available_ou)
+
         # TODO: make OU find DTO without child_of
         if "child_of" in params:
             del params["child_of"]
@@ -133,15 +133,13 @@ class OrganizationUnitsRepository:
 
         # TODO: we can run count and query concurrently to decrease latency
         count_result = await (
-            await self.tx.run(count_query, available_ou=available_ou, **params),
+            await self.tx.run(count_query, available_ou=available_ou, **params)  # noqa
         ).single()
 
         query += " RETURN ou"
         query += (
             f" SKIP {(pagination.page - 1) * pagination.limit} LIMIT {pagination.limit}"
         )
-
-        # TODO: count
 
         logger.debug(query)
 

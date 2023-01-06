@@ -8,6 +8,7 @@ from src.structures.configuration import Configuration
 from src.structures.controllers.organization_units import (
     register_organization_units_router,
 )
+from src.structures.controllers.users import register_users_router
 
 
 def mock_health_check() -> bool:
@@ -31,6 +32,7 @@ def initialize_application(config: Configuration):
 
     # Router part
     register_organization_units_router(application, "/v1")
+    register_users_router(application, "/v1")
 
     register_health_checks(application, health_checks)
 

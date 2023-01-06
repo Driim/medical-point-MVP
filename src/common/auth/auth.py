@@ -23,7 +23,7 @@ class UserIdSchema(APIKeyBase):
         if not header:
             return None
 
-        id = int(header)
+        id = header
         return id if id else None
 
 

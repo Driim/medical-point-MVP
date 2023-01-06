@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class OrganizationUnitService:
-    repository: OrganizationUnitsRepository
     user_service: UserService
     repository: OrganizationUnitsRepository
 
@@ -105,9 +104,16 @@ class OrganizationUnitService:
         pagination: PaginationQueryParams,
         user_id: str,
     ) -> OrganizationUnitPaginated:
-        # TODO: limit search by user access rules
-        # TODO: if dto has child_of, check access rules and limit request to child_of
-        available_ou = await self.user_service.get_available_organization_units(user_id)
+        available_ou = None
+        if dto.child_of:
+            if await self.user_service.have_read_access(user_id, dto.child_of):
+                available_ou = [dto.child_of]
+            else:
+                raise ReadAccessException(user_id, dto.child_of)
+        else:
+            available_ou = await self.user_service.get_available_organization_units(
+                user_id,
+            )
 
         return await self.repository.find(dto, available_ou, pagination)
 
