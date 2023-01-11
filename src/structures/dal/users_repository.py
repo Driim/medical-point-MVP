@@ -20,7 +20,7 @@ class UsersRepository:
         self.transaction = transaction
         self.tx = transaction if transaction else session
 
-    async def get_by_id(self, id: str) -> User:
+    async def get_by_id(self, user_id: str) -> User:
         query = """
             MATCH (u:USER {id: $id})
             WHERE u.deleted IS NULL
@@ -31,10 +31,7 @@ class UsersRepository:
             RETURN u {.*, read: read_ou, write: write_ou} as user
             """
 
-        result = await (await self.tx.run(query, id=id)).single()
-
-        logger.warn(result)
-
+        result = await (await self.tx.run(query, id=user_id)).single()
         return User(**result["user"]) if result is not None else None
 
     async def delete(self, user: User) -> None:
@@ -105,7 +102,31 @@ class UsersRepository:
 
         query += "DELETE r"
 
-        logger.debug(query)
         await (await self.tx.run(query, id=user.id, ou_ids=ou_ids)).single()
 
         return await self.get_by_id(user.id)
+
+    async def has_access_right(
+        self,
+        user_id: str,
+        organization_id: str,
+        root_ou: str,
+        access_right: str,
+    ) -> bool:
+        query = "OPTIONAL MATCH (o:ORGANIZATION_UNIT {id: $organization_unit})"
+        query += "-[:CHILD_OF*0..10]->(p:ORGANIZATION_UNIT)-[:CHILD_OF*0..10]->(root:ROOT_ORGANIZATION_UNIT)"
+        query += " WITH collect(p.id) + [$root_ou] as path_ids"
+        query += " MATCH (u:USER {id: $id})"
+        query += f"-[r:{access_right}]->"
+        query += "(ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT)"
+        query += " WHERE ou.id IN path_ids AND u.deleted IS NULL RETURN r"
+
+        result = await (
+            await self.tx.run(
+                query,
+                id=user_id,
+                organization_unit=organization_id,
+                root_ou=root_ou,
+            )  # noqa
+        ).single()
+        return True if result is not None else False

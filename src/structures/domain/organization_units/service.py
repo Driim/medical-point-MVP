@@ -26,9 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class OrganizationUnitService:
-    user_service: UserService
-    repository: OrganizationUnitsRepository
-
     def __init__(
         self,
         user_service: UserService = Depends(UserService),
@@ -57,8 +54,7 @@ class OrganizationUnitService:
         parent_organization_id: str = (
             dto.parent_organization_unit
             if dto.parent_organization_unit
-            # else "c1c83be4-9d4e-4f36-af75-f81507bb7b91"
-            else "33b8b452-00cf-42f7-8f4b-ce867c68b8c1"
+            else self.request.app.state.ROOT_OU
         )
         if not await self.user_service.have_write_access(
             user_id,

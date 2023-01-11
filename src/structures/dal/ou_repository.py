@@ -115,7 +115,7 @@ class OrganizationUnitsRepository:
 
         # searching across available OU
         query = "MATCH (p:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT) WHERE p.id IN $available_ou "
-        query += "MATCH (ou:ORGANIZATION_UNIT)-[:CHILD_OF*..10]->(p)"  # max 10 hops
+        query += "MATCH (ou:ORGANIZATION_UNIT)-[:CHILD_OF*1..10]->(p)"  # 1 to 10 hops
 
         lines = []
         if params:
@@ -150,7 +150,7 @@ class OrganizationUnitsRepository:
             count=count_result["count"],
         )
 
-        # TODO: check that all readed at once
+        # TODO: check that all read at once
         retval = []
         async for record in result:
             retval.append(OrganizationUnit(**record["ou"]))

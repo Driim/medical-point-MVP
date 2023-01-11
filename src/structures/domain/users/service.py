@@ -1,18 +1,19 @@
-from fastapi import Depends
+from fastapi import Depends, Request
 
+from src.common.context.context import get_request
 from src.structures.dal.users_repository import UsersRepository
 from src.structures.domain.users.exceptions import UserNotFound
 from src.structures.domain.users.models import User, UserCreateDto
 
 
 class UserService:
-    repository: UsersRepository
-
     def __init__(
         self,
         repository: UsersRepository = Depends(UsersRepository),
+        request: Request = Depends(get_request),
     ) -> None:
         self.repository = repository
+        self.request = request
 
     async def _get_by_id(self, id: str) -> User:
         user = await self.repository.get_by_id(id)
@@ -26,12 +27,20 @@ class UserService:
         return await self._get_by_id(user_id)
 
     async def have_read_access(self, user_id: str, organization_id: str) -> bool:
-        # TODO: implement
-        return True
+        return await self.repository.has_access_right(
+            user_id,
+            organization_id,
+            self.request.app.state.ROOT_OU,
+            "READ_ACCESS",
+        )
 
     async def have_write_access(self, user_id: str, organization_id: str) -> bool:
-        # TODO: implement
-        return True
+        return await self.repository.has_access_right(
+            user_id,
+            organization_id,
+            self.request.app.state.ROOT_OU,
+            "WRITE_ACCESS",
+        )
 
     async def get_available_organization_units(self, user_id: str) -> list[str]:
         result = set()
@@ -67,7 +76,8 @@ class UserService:
     async def remove_read_access(self, user_id: str, ou_id: str) -> User:
         user = await self._get_by_id(user_id)
 
-        # TODO: check that relation is on list
+        if ou_id not in set(user.read):
+            return user
 
         return await self.repository.remove_relation(user, "READ_ACCESS", [ou_id])
 
