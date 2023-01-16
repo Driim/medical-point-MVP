@@ -24,8 +24,8 @@ class UsersRepository:
         query = """
             MATCH (u:USER {id: $id})
             WHERE u.deleted IS NULL
-            OPTIONAL MATCH (u)-[:READ_ACCESS]->(r_ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT)
-            OPTIONAL MATCH (u)-[:WRITE_ACCESS]->(w_ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT)
+            OPTIONAL MATCH (u)-[:READ_ACCESS]->(r_ou:OrganizationUnit|RootOrganizationUnit)
+            OPTIONAL MATCH (u)-[:WRITE_ACCESS]->(w_ou:OrganizationUnit|RootOrganizationUnit)
             WITH u, w_ou, collect(r_ou.id) as read_ou
             WITH u, read_ou, collect(w_ou.id) as write_ou
             RETURN u {.*, read: read_ou, write: write_ou} as user
@@ -46,12 +46,12 @@ class UsersRepository:
         params = transform_to_dict(dto)
 
         if "read" in params:
-            query += "MATCH (r_ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT) WHERE r_ou.id in $read "
+            query += "MATCH (r_ou:OrganizationUnit|RootOrganizationUnit) WHERE r_ou.id in $read "
 
         if "write" in params:
-            query += "MATCH (w_ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT) WHERE w_ou.id in $write "
+            query += "MATCH (w_ou:OrganizationUnit|RootOrganizationUnit) WHERE w_ou.id in $write "
 
-        query += "CREATE (u:USER { id: randomUUID() }) "
+        query += "CREATE (u:USER { id: randomUUID(), name: $name }) "
 
         if "read" in params:
             query += "CREATE (u)-[:READ_ACCESS]->(r_ou) "
@@ -73,13 +73,15 @@ class UsersRepository:
 
         logger.debug(query)
         result = await (await self.tx.run(query, **params)).single()
-        logger.warn(result["user"])
+        logger.warning(result["user"])
 
         return User(**result["user"]) if result is not None else None
 
     async def add_relation(self, user: User, relation: str, ou_ids: list[str]) -> User:
         query = "MATCH (u:USER {id: $id}) "
-        query += "MATCH (ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT) WHERE ou.id in $ou_ids "
+        query += (
+            "MATCH (ou:OrganizationUnit|RootOrganizationUnit) WHERE ou.id in $ou_ids "
+        )
         query += f"CREATE (u)-[r:{relation}]->(ou)"
 
         logger.debug(query)
@@ -93,7 +95,9 @@ class UsersRepository:
         relation: str,
         ou_ids: list[str],
     ) -> User:
-        query = "MATCH (ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT) WHERE ou.id in $ou_ids "
+        query = (
+            "MATCH (ou:OrganizationUnit|RootOrganizationUnit) WHERE ou.id in $ou_ids "
+        )
         # TODO: refactor
         if relation == "READ_ACCESS":
             query += "MATCH (u:USER {id: $id})-[r:READ_ACCESS]->(ou)"
@@ -113,12 +117,12 @@ class UsersRepository:
         root_ou: str,
         access_right: str,
     ) -> bool:
-        query = "OPTIONAL MATCH (o:ORGANIZATION_UNIT {id: $organization_unit})"
-        query += "-[:CHILD_OF*0..10]->(p:ORGANIZATION_UNIT)-[:CHILD_OF*0..10]->(root:ROOT_ORGANIZATION_UNIT)"
+        query = "OPTIONAL MATCH (o:OrganizationUnit {id: $organization_unit})"
+        query += "-[:CHILD_OF*0..10]->(p:OrganizationUnit)-[:CHILD_OF*0..10]->(root:RootOrganizationUnit)"
         query += " WITH collect(p.id) + [$root_ou] as path_ids"
         query += " MATCH (u:USER {id: $id})"
         query += f"-[r:{access_right}]->"
-        query += "(ou:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT)"
+        query += "(ou:OrganizationUnit|RootOrganizationUnit)"
         query += " WHERE ou.id IN path_ids AND u.deleted IS NULL RETURN r"
 
         result = await (

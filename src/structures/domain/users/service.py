@@ -42,6 +42,14 @@ class UserService:
             "WRITE_ACCESS",
         )
 
+    async def have_write_access_by_outlet(self, user_id: str, outlet_id: str) -> bool:
+        # TODO:
+        return True
+
+    async def have_read_access_by_outlet(self, user_id, outlet_id: str) -> bool:
+        # TODO:
+        return True
+
     async def get_available_organization_units(self, user_id: str) -> list[str]:
         result = set()
 

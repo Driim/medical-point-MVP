@@ -1,0 +1,1781 @@
+openapi: 3.0.2
+info:
+  title: Structures service
+  version: '0.1'
+paths:
+  /organization-units/{id}:
+    get:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Get Organization Unit
+      operationId: get_organization_unit_organization_units__id__get
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: string
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnit'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    put:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Update Organization Unit
+      operationId: update_organization_unit_organization_units__id__put
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: string
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationUnitUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnit'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    delete:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Delete Organization Unit
+      operationId: delete_organization_unit_organization_units__id__delete
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: string
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /organization-units:
+    get:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Find Organization Units
+      operationId: find_organization_units_organization_units_get
+      parameters:
+        - required: false
+          schema:
+            title: Active
+            type: boolean
+          name: active
+          in: query
+        - required: false
+          schema:
+            title: Child Of
+            type: string
+          name: child_of
+          in: query
+        - required: false
+          schema:
+            title: Page
+            type: integer
+            default: 1
+          name: page
+          in: query
+        - required: false
+          schema:
+            title: Limit
+            type: integer
+            default: 100
+          name: limit
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnitPaginated'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    post:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Create Organization Unit
+      operationId: create_organization_unit_organization_units_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationUnitCreateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnit'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /organization-units/{id}/activate:
+    patch:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Activate Organization Unit
+      operationId: activate_organization_unit_organization_units__id__activate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: string
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnit'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /organization-units/{id}/deactivate:
+    patch:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Deactivate Organization Unit
+      operationId: deactivate_organization_unit_organization_units__id__deactivate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: string
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnit'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /organization-units/{id}/change-parent/{new_parent}:
+    patch:
+      tags:
+        - Organization Units
+        - Organization Units
+      summary: Change Parent Organization Unit
+      operationId: change_parent_organization_unit_organization_units__id__change_parent__new_parent__patch
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: string
+          name: id
+          in: path
+        - required: true
+          schema:
+            title: New Parent
+            type: string
+          name: new_parent
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnit'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /outlets/{outlet_id}:
+    get:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Get Outlet
+      operationId: get_outlet_outlets__outlet_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Outlet Id
+            type: string
+          name: outlet_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    put:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Update Outlet
+      operationId: update_outlet_outlets__outlet_id__put
+      parameters:
+        - required: true
+          schema:
+            title: Outlet Id
+            type: string
+          name: outlet_id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutletUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    delete:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Delete Outlet
+      operationId: delete_outlet_outlets__outlet_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: Outlet Id
+            type: string
+          name: outlet_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /outlets:
+    get:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Find Outlets
+      operationId: find_outlets_outlets_get
+      parameters:
+        - required: false
+          schema:
+            title: Active
+            type: boolean
+          name: active
+          in: query
+        - required: false
+          schema:
+            title: Child Of
+            type: string
+          name: child_of
+          in: query
+        - required: false
+          schema:
+            title: Page
+            type: integer
+            default: 1
+          name: page
+          in: query
+        - required: false
+          schema:
+            title: Limit
+            type: integer
+            default: 100
+          name: limit
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutletPaginated'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    post:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Create Outlet
+      operationId: create_outlet_outlets_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutletCreateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /outlets/{outlet_id}/activate:
+    patch:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Activate Outlet
+      operationId: activate_outlet_outlets__outlet_id__activate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Outlet Id
+            type: string
+          name: outlet_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /outlets/{outlet_id}/deactivate:
+    patch:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Deactivate Outlet
+      operationId: deactivate_outlet_outlets__outlet_id__deactivate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Outlet Id
+            type: string
+          name: outlet_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /outlets/{outlet_id}/change-parent/{new_parent_id}:
+    patch:
+      tags:
+        - Outlets
+        - Outlets
+      summary: Change Parent Organization Unit
+      operationId: change_parent_organization_unit_outlets__outlet_id__change_parent__new_parent_id__patch
+      parameters:
+        - required: true
+          schema:
+            title: Outlet Id
+            type: string
+          name: outlet_id
+          in: path
+        - required: true
+          schema:
+            title: New Parent Id
+            type: string
+          name: new_parent_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /devices/{device_id}:
+    get:
+      tags:
+        - Devices
+        - Devices
+      summary: Get Device
+      operationId: get_device_devices__device_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    put:
+      tags:
+        - Devices
+        - Devices
+      summary: Update Device
+      operationId: update_device_devices__device_id__put
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    delete:
+      tags:
+        - Devices
+        - Devices
+      summary: Delete Device
+      operationId: delete_device_devices__device_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /devices:
+    get:
+      tags:
+        - Devices
+        - Devices
+      summary: Find Devices
+      operationId: find_devices_devices_get
+      parameters:
+        - required: false
+          schema:
+            title: Active
+            type: boolean
+          name: active
+          in: query
+        - required: false
+          schema:
+            title: Child Of Organization Unit
+            type: string
+          name: child_of_organization_unit
+          in: query
+        - required: false
+          schema:
+            title: Child Of Outlet
+            type: string
+          name: child_of_outlet
+          in: query
+        - required: false
+          schema:
+            title: Page
+            type: integer
+            default: 1
+          name: page
+          in: query
+        - required: false
+          schema:
+            title: Limit
+            type: integer
+            default: 100
+          name: limit
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePaginatedDto'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    post:
+      tags:
+        - Devices
+        - Devices
+      summary: Create Device
+      operationId: create_device_devices_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCreateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /devices/{device_id}/activate:
+    patch:
+      tags:
+        - Devices
+        - Devices
+      summary: Activate Device
+      operationId: activate_device_devices__device_id__activate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /devices/{device_id}/deactivate:
+    patch:
+      tags:
+        - Devices
+        - Devices
+      summary: Deactivate Outlet
+      operationId: deactivate_outlet_devices__device_id__deactivate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /devices/{device_id}/change-outlet/{new_outlet_id}:
+    patch:
+      tags:
+        - Devices
+        - Devices
+      summary: Change Outlet
+      operationId: change_outlet_devices__device_id__change_outlet__new_outlet_id__patch
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+        - required: true
+          schema:
+            title: New Outlet Id
+            type: string
+          name: new_outlet_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /workers/{worker_id}:
+    get:
+      tags:
+        - Workers
+        - Workers
+      summary: Get Worker
+      operationId: get_worker_workers__worker_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    put:
+      tags:
+        - Workers
+        - Workers
+      summary: Update Worker
+      operationId: update_worker_workers__worker_id__put
+      parameters:
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    delete:
+      tags:
+        - Workers
+        - Workers
+      summary: Delete Worker
+      operationId: delete_worker_workers__worker_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /workers:
+    get:
+      tags:
+        - Workers
+        - Workers
+      summary: Find Workers
+      operationId: find_workers_workers_get
+      parameters:
+        - required: false
+          schema:
+            title: Active
+            type: boolean
+          name: active
+          in: query
+        - required: false
+          schema:
+            title: Child Of Organization Unit
+            type: string
+          name: child_of_organization_unit
+          in: query
+        - required: false
+          schema:
+            title: Page
+            type: integer
+            default: 1
+          name: page
+          in: query
+        - required: false
+          schema:
+            title: Limit
+            type: integer
+            default: 100
+          name: limit
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkerPaginatedDto'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+    post:
+      tags:
+        - Workers
+        - Workers
+      summary: Create Worker
+      operationId: create_worker_workers_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerCreateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /workers/{worker_id}/activate:
+    patch:
+      tags:
+        - Workers
+        - Workers
+      summary: Activate Worker
+      operationId: activate_worker_workers__worker_id__activate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /workers/{worker_id}/deactivate:
+    patch:
+      tags:
+        - Workers
+        - Workers
+      summary: Deactivate Worker
+      operationId: deactivate_worker_workers__worker_id__deactivate_patch
+      parameters:
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /workers/{worker_id}/change-organization/{new_parent_id}:
+    patch:
+      tags:
+        - Workers
+        - Workers
+      summary: Change Organization Unit
+      operationId: change_organization_unit_workers__worker_id__change_organization__new_parent_id__patch
+      parameters:
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+        - required: true
+          schema:
+            title: New Parent Id
+            type: string
+          name: new_parent_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /users/{user_id}:
+    get:
+      tags:
+        - Users
+        - Users
+      summary: Get User By Id
+      operationId: get_user_by_id_users__user_id__get
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: string
+          name: user_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Users
+        - Users
+      summary: Delete User
+      operationId: delete_user_users__user_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: string
+          name: user_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users:
+    post:
+      tags:
+        - Users
+        - Users
+      summary: Create User
+      operationId: create_user_users_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/{user_id}/read:
+    put:
+      tags:
+        - Users
+        - Users
+      summary: Add Read Access
+      operationId: add_read_access_users__user_id__read_put
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: string
+          name: user_id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAddReadAccessDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/{user_id}/write:
+    put:
+      tags:
+        - Users
+        - Users
+      summary: Add Write Access
+      operationId: add_write_access_users__user_id__write_put
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: string
+          name: user_id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAddWriteAccessDto'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/{user_id}/read/{ou_id}:
+    delete:
+      tags:
+        - Users
+        - Users
+      summary: Delete Read Access
+      operationId: delete_read_access_users__user_id__read__ou_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: string
+          name: user_id
+          in: path
+        - required: true
+          schema:
+            title: Ou Id
+            type: string
+          name: ou_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/{user_id}/write/{ou_id}:
+    delete:
+      tags:
+        - Users
+        - Users
+      summary: Delete Write Access
+      operationId: delete_write_access_users__user_id__write__ou_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: string
+          name: user_id
+          in: path
+        - required: true
+          schema:
+            title: Ou Id
+            type: string
+          name: ou_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /_readiness:
+    get:
+      tags:
+        - __system__
+      summary: Endpoint
+      operationId: endpoint__readiness_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Device:
+      title: Device
+      required:
+        - id
+        - license
+        - active
+        - outlet_id
+        - materialized_path
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        license:
+          title: License
+          type: string
+        active:
+          title: Active
+          type: boolean
+        outlet_id:
+          title: Outlet Id
+          type: string
+        materialized_path:
+          title: Materialized Path
+          type: array
+          items:
+            type: string
+    DeviceBase:
+      title: DeviceBase
+      required:
+        - id
+        - license
+        - active
+        - outlet_id
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        license:
+          title: License
+          type: string
+        active:
+          title: Active
+          type: boolean
+        outlet_id:
+          title: Outlet Id
+          type: string
+    DeviceCreateDto:
+      title: DeviceCreateDto
+      required:
+        - license
+        - active
+        - outlet_id
+      type: object
+      properties:
+        license:
+          title: License
+          type: string
+        active:
+          title: Active
+          type: boolean
+        outlet_id:
+          title: Outlet Id
+          type: string
+    DevicePaginatedDto:
+      title: DevicePaginatedDto
+      required:
+        - pagination
+        - data
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          title: Data
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceBase'
+    DeviceUpdateDto:
+      title: DeviceUpdateDto
+      type: object
+      properties:
+        license:
+          title: License
+          type: string
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    OrganizationUnit:
+      title: OrganizationUnit
+      required:
+        - id
+        - name
+        - inn
+        - kpp
+        - active
+        - parent_organization_unit
+        - filler
+        - materialized_path
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        inn:
+          title: Inn
+          type: integer
+        kpp:
+          title: Kpp
+          type: integer
+        active:
+          title: Active
+          type: boolean
+        parent_organization_unit:
+          title: Parent Organization Unit
+          type: string
+        filler:
+          title: Filler
+          type: string
+        materialized_path:
+          title: Materialized Path
+          type: array
+          items:
+            type: string
+    OrganizationUnitBase:
+      title: OrganizationUnitBase
+      required:
+        - id
+        - name
+        - inn
+        - kpp
+        - active
+        - parent_organization_unit
+        - filler
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        inn:
+          title: Inn
+          type: integer
+        kpp:
+          title: Kpp
+          type: integer
+        active:
+          title: Active
+          type: boolean
+        parent_organization_unit:
+          title: Parent Organization Unit
+          type: string
+        filler:
+          title: Filler
+          type: string
+    OrganizationUnitCreateDto:
+      title: OrganizationUnitCreateDto
+      required:
+        - name
+        - inn
+        - kpp
+        - legal_address
+        - ogrn
+        - filler
+      type: object
+      properties:
+        parent_organization_unit:
+          title: Parent Organization Unit
+          type: string
+        name:
+          title: Name
+          type: string
+        inn:
+          title: Inn
+          type: integer
+        kpp:
+          title: Kpp
+          type: integer
+        legal_address:
+          title: Legal Address
+          type: string
+        ogrn:
+          title: Ogrn
+          type: integer
+        filler:
+          title: Filler
+          type: string
+    OrganizationUnitPaginated:
+      title: OrganizationUnitPaginated
+      required:
+        - pagination
+        - data
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          title: Data
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationUnitBase'
+    OrganizationUnitUpdateDto:
+      title: OrganizationUnitUpdateDto
+      required:
+        - filler
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        inn:
+          title: Inn
+          type: integer
+        kpp:
+          title: Kpp
+          type: integer
+        legal_address:
+          title: Legal Address
+          type: string
+        ogrn:
+          title: Ogrn
+          type: integer
+        filler:
+          title: Filler
+          type: string
+    Outlet:
+      title: Outlet
+      required:
+        - id
+        - name
+        - address
+        - active
+        - organization_unit_id
+        - materialized_path
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        address:
+          title: Address
+          type: string
+        active:
+          title: Active
+          type: boolean
+        organization_unit_id:
+          title: Organization Unit Id
+          type: string
+        materialized_path:
+          title: Materialized Path
+          type: array
+          items:
+            type: string
+    OutletBase:
+      title: OutletBase
+      required:
+        - id
+        - name
+        - address
+        - active
+        - organization_unit_id
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        address:
+          title: Address
+          type: string
+        active:
+          title: Active
+          type: boolean
+        organization_unit_id:
+          title: Organization Unit Id
+          type: string
+    OutletCreateDto:
+      title: OutletCreateDto
+      required:
+        - name
+        - address
+        - active
+        - organization_unit_id
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        address:
+          title: Address
+          type: string
+        active:
+          title: Active
+          type: boolean
+        organization_unit_id:
+          title: Organization Unit Id
+          type: string
+    OutletPaginated:
+      title: OutletPaginated
+      required:
+        - pagination
+        - data
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          title: Data
+          type: array
+          items:
+            $ref: '#/components/schemas/OutletBase'
+    OutletUpdateDto:
+      title: OutletUpdateDto
+      type: object
+      properties:
+        name:
+          title: Name
+          type: string
+        address:
+          title: Address
+          type: string
+    Pagination:
+      title: Pagination
+      required:
+        - page
+        - limit
+        - count
+      type: object
+      properties:
+        page:
+          title: Page
+          type: integer
+        limit:
+          title: Limit
+          type: integer
+        count:
+          title: Count
+          type: integer
+    User:
+      title: User
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        read:
+          title: Read
+          type: array
+          items:
+            type: string
+        write:
+          title: Write
+          type: array
+          items:
+            type: string
+    UserAddReadAccessDto:
+      title: UserAddReadAccessDto
+      required:
+        - read
+      type: object
+      properties:
+        read:
+          title: Read
+          type: array
+          items:
+            type: string
+    UserAddWriteAccessDto:
+      title: UserAddWriteAccessDto
+      required:
+        - write
+      type: object
+      properties:
+        write:
+          title: Write
+          type: array
+          items:
+            type: string
+    UserCreateDto:
+      title: UserCreateDto
+      type: object
+      properties:
+        read:
+          title: Read
+          type: array
+          items:
+            type: string
+        write:
+          title: Write
+          type: array
+          items:
+            type: string
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    Worker:
+      title: Worker
+      required:
+        - id
+        - fio
+        - drivers_license
+        - active
+        - organization_unit_id
+        - materialized_path
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        fio:
+          title: Fio
+          type: string
+        drivers_license:
+          title: Drivers License
+          type: string
+        active:
+          title: Active
+          type: boolean
+        organization_unit_id:
+          title: Organization Unit Id
+          type: string
+        materialized_path:
+          title: Materialized Path
+          type: array
+          items:
+            type: string
+    WorkerCreateDto:
+      title: WorkerCreateDto
+      required:
+        - fio
+        - drivers_license
+        - active
+        - organization_unit_id
+      type: object
+      properties:
+        fio:
+          title: Fio
+          type: string
+        drivers_license:
+          title: Drivers License
+          type: string
+        active:
+          title: Active
+          type: boolean
+        organization_unit_id:
+          title: Organization Unit Id
+          type: string
+    WorkerPaginatedDto:
+      title: WorkerPaginatedDto
+      required:
+        - pagination
+        - data
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          title: Data
+          type: array
+          items:
+            $ref: '#/components/schemas/Worker'
+    WorkerUpdateDto:
+      title: WorkerUpdateDto
+      type: object
+      properties:
+        fio:
+          title: Fio
+          type: string
+        drivers_license:
+          title: Drivers License
+          type: string
+  securitySchemes:
+    UserIdSchema:
+      type: apiKey
+      in: header
+      name: X-User-Id

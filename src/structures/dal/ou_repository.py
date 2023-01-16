@@ -7,10 +7,11 @@ from src.common.models import Pagination, PaginationQueryParams
 from src.common.neo4j import get_session, get_transaction
 from src.structures.dal.utils import transform_to_dict
 from src.structures.domain.organization_units.models import (
-    OrganizationUnit,
+    OrganizationUnitBase,
     OrganizationUnitCreateDto,
     OrganizationUnitFindDto,
     OrganizationUnitPaginated,
+    OrganizationUnitShort,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,45 +35,45 @@ class OrganizationUnitsRepository:
         self,
         dto: OrganizationUnitCreateDto,
         parent_id: str,
-    ) -> OrganizationUnit:
+    ) -> OrganizationUnitBase:
         # TODO: create model with mandatory parent
         self._check_transaction()
 
         params = transform_to_dict(dto)
 
-        query = "MATCH (p:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT {id: $parent_id}) \n"
-        query += "CREATE (ou:ORGANIZATION_UNIT { "
+        query = "MATCH (p:OrganizationUnit|RootOrganizationUnit {id: $parent_id}) \n"
+        query += "CREATE (ou:OrganizationUnit { "
 
         params["active"] = False
 
-        lines = []
-        lines.append("id: randomUUID()")
+        lines = ["id: randomUUID()"]
         for key in params:
             lines.append(f"{key}: ${key}")
 
         query += ", ".join(lines)
-        query += "})-[r:CHILD_OF]->(p) RETURN ou"
+        query += "})-[r:CHILD_OF]->(p)"
+        query += (
+            " RETURN ou { .*, parent_organization_unit: p.id } as organization_unit"
+        )
 
         params["parent_id"] = parent_id
 
-        print(query)
-
         result = await (await self.tx.run(query, **params)).single()
 
-        return OrganizationUnit(**result["ou"])
+        return OrganizationUnitBase(**result["organization_unit"])
 
-    async def delete(self, ou: OrganizationUnit) -> None:
+    async def delete(self, ou: OrganizationUnitBase) -> None:
         self._check_transaction()
 
-        query = "MATCH (ou:ORGANIZATION_UNIT { id: $id }) SET ou.deleted = true"
+        query = "MATCH (ou:OrganizationUnit { id: $id }) SET ou.deleted = true"
 
         await (await self.tx.run(query, id=ou.id)).single()
 
-    async def save(self, ou: OrganizationUnit) -> OrganizationUnit:
+    async def save(self, ou: OrganizationUnitBase) -> OrganizationUnitBase:
         self._check_transaction()
 
         params = transform_to_dict(ou)
-        query = "MATCH (ou:ORGANIZATION_UNIT { id: $id }) SET "
+        query = "MATCH (ou:OrganizationUnit { id: $id })-[r:CHILD_OF]->(p) SET "
 
         del params["id"]
 
@@ -81,23 +82,26 @@ class OrganizationUnitsRepository:
             lines.append(f"ou.{key} = ${key}")
 
         query += ", ".join(lines)
-        query += " RETURN ou\n"
-
-        print(query)
+        query += (
+            " RETURN ou { .*, parent_organization_unit: p.id } as organization_unit\n"
+        )
 
         result = await (await self.tx.run(query, **params, id=ou.id)).single()
 
-        return OrganizationUnit(**result["ou"])
+        return OrganizationUnitBase(**result["organization_unit"])
 
-    async def get_by_id(self, id: str) -> OrganizationUnit:
+    async def get_by_id(self, organization_unit_id: str) -> OrganizationUnitBase:
         query = (
-            "MATCH (ou:ORGANIZATION_UNIT {id: $id}) WHERE ou.deleted IS NULL RETURN ou"
+            "MATCH (ou:OrganizationUnit {id: $id})-[r:CHILD_OF]->(p)"
+            + " WHERE ou.deleted IS NULL RETURN ou { .*, parent_organization_unit: p.id } as organization_unit"
         )
-        result = await (await self.tx.run(query, id=id)).single()
 
-        print(result)
-
-        return OrganizationUnit(**result["ou"]) if result is not None else None
+        result = await (await self.tx.run(query, id=organization_unit_id)).single()
+        return (
+            OrganizationUnitBase(**result["organization_unit"])
+            if result is not None
+            else None
+        )
 
     async def find(
         self,
@@ -107,15 +111,15 @@ class OrganizationUnitsRepository:
     ) -> OrganizationUnitPaginated:
         params = transform_to_dict(dto)
 
-        logger.warn(available_ou)
+        logger.warning(available_ou)
 
         # TODO: make OU find DTO without child_of
         if "child_of" in params:
             del params["child_of"]
 
         # searching across available OU
-        query = "MATCH (p:ORGANIZATION_UNIT|ROOT_ORGANIZATION_UNIT) WHERE p.id IN $available_ou "
-        query += "MATCH (ou:ORGANIZATION_UNIT)-[:CHILD_OF*1..10]->(p)"  # 1 to 10 hops
+        query = "MATCH (p:OrganizationUnit|RootOrganizationUnit) WHERE p.id IN $available_ou "
+        query += "MATCH (ou:OrganizationUnit)-[:CHILD_OF*1..10]->(p)"  # 1 to 10 hops
 
         lines = []
         if params:
@@ -153,13 +157,32 @@ class OrganizationUnitsRepository:
         # TODO: check that all read at once
         retval = []
         async for record in result:
-            retval.append(OrganizationUnit(**record["ou"]))
+            retval.append(OrganizationUnitShort(**record["ou"]))
 
         return OrganizationUnitPaginated(pagination=result_pagination, data=retval)
 
     async def change_parent_ou(
         self,
-        ou: OrganizationUnit,
+        ou: OrganizationUnitBase,
         new_parent_id: str,
-    ):
+    ) -> OrganizationUnitBase:
+        # TODO: implement
         pass
+
+    async def path_to_organization_unit(
+        self,
+        organization_unit: str,
+        root_ou: str,
+    ) -> list[str]:
+        query = "MATCH (o:OrganizationUnit {id: $organization_unit})"
+        query += "-[:CHILD_OF*0..10]->(p:OrganizationUnit)-[:CHILD_OF*0..10]->(root:RootOrganizationUnit)"
+        query += " RETURN collect(p.id) + [$root_ou] as path_ids"
+
+        result = await (
+            await self.tx.run(
+                query,
+                organization_unit=organization_unit,
+                root_ou=root_ou,
+            ),
+        ).single()
+        return result["path_ids"]

@@ -1,20 +1,23 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 from src.common.models import Pagination
 
 
-class OrganizationUnit(BaseModel):
+class OrganizationUnitShort(BaseModel):
     id: str
     name: str
     inn: int
     kpp: int
-    legal_address: str
-    ognr: int
     active: bool
-    contacts: Dict[str, str] | None  # Contacts with details
-    contracts: list[str] | None  # ID of contracts
+    filler: str  # field to make one record 100 KB long
+
+
+class OrganizationUnitBase(OrganizationUnitShort):
+    parent_organization_unit: str  # TODO: get rid of that later
+
+
+class OrganizationUnit(OrganizationUnitBase):
+    materialized_path: list[str]
 
 
 class OrganizationUnitCreateDto(BaseModel):
@@ -23,9 +26,8 @@ class OrganizationUnitCreateDto(BaseModel):
     inn: int
     kpp: int
     legal_address: str
-    ognr: int
-    contacts: Dict[str, str] | None
-    contracts: list[str] | None
+    ogrn: int
+    filler: str  # field to make one record 100 KB long
 
 
 class OrganizationUnitUpdateDto(BaseModel):
@@ -33,9 +35,8 @@ class OrganizationUnitUpdateDto(BaseModel):
     inn: int | None
     kpp: int | None
     legal_address: str | None
-    ognr: int | None
-    contacts: Dict[str, str] | None
-    contracts: list[str] | None
+    ogrn: int | None
+    filler: str  # field to make one record 100 KB long
 
 
 class OrganizationUnitFindDto(BaseModel):
@@ -45,4 +46,4 @@ class OrganizationUnitFindDto(BaseModel):
 
 class OrganizationUnitPaginated(BaseModel):
     pagination: Pagination
-    data: list[OrganizationUnit]
+    data: list[OrganizationUnitShort]
