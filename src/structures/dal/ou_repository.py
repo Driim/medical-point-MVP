@@ -183,6 +183,6 @@ class OrganizationUnitsRepository:
                 query,
                 organization_unit=organization_unit,
                 root_ou=root_ou,
-            ),
+            )  # noqa
         ).single()
         return result["path_ids"]

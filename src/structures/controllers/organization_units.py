@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, status
 from fastapi_restful.cbv import cbv
 
 from src.common.auth.auth import get_user_id
@@ -40,7 +40,11 @@ class OrganizationUnitsController:
         return await self.service.find(dto, pagination, self.user_id)
 
     @Transactional()
-    @router.post("/organization-units", response_model=OrganizationUnit)
+    @router.post(
+        "/organization-units",
+        response_model=OrganizationUnit,
+        status_code=status.HTTP_201_CREATED,
+    )
     async def create_organization_unit(self, dto: OrganizationUnitCreateDto):
         return await self.service.create(dto, self.user_id)
 

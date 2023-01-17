@@ -18,7 +18,7 @@ def mock_health_check() -> bool:
     return True
 
 
-def initialize_application(config: Configuration):
+def initialize_application(config: Configuration) -> FastAPI:
     initialize_logger(config.logging)
     application = FastAPI(
         title="Structures service",

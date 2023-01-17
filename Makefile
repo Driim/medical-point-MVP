@@ -6,8 +6,8 @@ format:
 lint:
 	poetry run flake8 src tests
 
-tests:
-	poetry run pytest
+testing:
+	@(export $(shell cat tests/.env) && poetry run pytest)
 
 # For production environment
 run-structures:
