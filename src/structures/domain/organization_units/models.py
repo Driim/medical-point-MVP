@@ -25,8 +25,6 @@ class OrganizationUnitCreateDto(BaseModel):
     name: str
     inn: int
     kpp: int
-    legal_address: str
-    ogrn: int
     filler: str  # field to make one record 100 KB long
 
 
@@ -34,9 +32,7 @@ class OrganizationUnitUpdateDto(BaseModel):
     name: str | None
     inn: int | None
     kpp: int | None
-    legal_address: str | None
-    ogrn: int | None
-    filler: str  # field to make one record 100 KB long
+    filler: str | None  # field to make one record 100 KB long
 
 
 class OrganizationUnitFindDto(BaseModel):

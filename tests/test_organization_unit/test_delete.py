@@ -5,7 +5,7 @@ from async_asgi_testclient import TestClient
 from async_asgi_testclient.response import Response
 
 from src.structures.configuration import Configuration
-from tests.helpers import create_organization
+from tests.helpers import create_organization, delete_organization
 
 logger = logging.getLogger(__name__)
 configuration = Configuration()
@@ -18,13 +18,6 @@ async def is_deleted(client: TestClient, ou_id: str, user: str) -> bool:
     )
 
     return result.status_code == 404
-
-
-async def delete_organization(client: TestClient, ou_id: str, user: str) -> Response:
-    return await client.delete(
-        f"/organization-units/{ou_id}",
-        headers={"X-User-Id": user},
-    )
 
 
 class TestOrganizationUnitDelete:

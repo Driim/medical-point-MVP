@@ -119,7 +119,7 @@ class OrganizationUnitsRepository:
 
         # searching across available OU
         query = "MATCH (p:OrganizationUnit|RootOrganizationUnit) WHERE p.id IN $available_ou "
-        query += "MATCH (ou:OrganizationUnit)-[:CHILD_OF*1..10]->(p)"  # 1 to 10 hops
+        query += "MATCH (ou:OrganizationUnit)-[:CHILD_OF*0..10]->(p)"  # 1 to 10 hops
 
         lines = []
         if params:
@@ -128,7 +128,9 @@ class OrganizationUnitsRepository:
                 lines.append(f"ou.{key} = ${key}")
 
         if lines:
-            query += " WHERE " + " ".join(lines)
+            query += " WHERE ou.deleted is NULL " + " ".join(lines)
+        else:
+            query += " WHERE ou.deleted is NULL "
 
         count_query = str(query)
         count_query += " RETURN count(ou) as count"

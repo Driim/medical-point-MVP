@@ -32,6 +32,7 @@ pytest = "^7.2.0"
 pytest-httpx = "^0.21.2"
 pytest-asyncio = "^0.20.3"
 async-asgi-testclient = "^1.4.11"
+faker = "^16.6.0"
 
 [build-system]
 requires = ["poetry-core"]
