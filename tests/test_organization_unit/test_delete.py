@@ -2,7 +2,6 @@ import logging
 
 import pytest
 from async_asgi_testclient import TestClient
-from async_asgi_testclient.response import Response
 
 from src.structures.configuration import Configuration
 from tests.helpers import create_organization, delete_organization

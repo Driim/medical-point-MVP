@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, status
 from fastapi_restful.cbv import cbv
 
 from src.common.auth import get_user_id
@@ -44,7 +44,11 @@ class OutletsController:
         return await self.service.find(dto, pagination, self.user_id)
 
     @Transactional()
-    @router.post("/outlets", response_model=Outlet)
+    @router.post(
+        "/outlets",
+        response_model=Outlet,
+        status_code=status.HTTP_201_CREATED,
+    )
     async def create_outlet(self, dto: OutletCreateDto):
         return await self.service.create(dto, self.user_id)
 

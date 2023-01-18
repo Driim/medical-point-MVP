@@ -19,10 +19,10 @@ class TestOrganizationUnitUpdate:
         user_id_with_root_access: str,
         child_ou: str,
     ):
-        dto = OrganizationUnitUpdateDto(
-            name="New name"
+        dto = OrganizationUnitUpdateDto(name="New name")
+        result = await update_organization(
+            client, child_ou, user_id_with_root_access, dto
         )
-        result = await update_organization(client, child_ou, user_id_with_root_access, dto)
 
         assert result.status_code == 200
         assert result.json()["name"] == "New name"
@@ -34,10 +34,10 @@ class TestOrganizationUnitUpdate:
         other_child_ou: str,
         user_id_with_child_access: str,
     ):
-        dto = OrganizationUnitUpdateDto(
-            name="New name"
+        dto = OrganizationUnitUpdateDto(name="New name")
+        result = await update_organization(
+            client, other_child_ou, user_id_with_child_access, dto
         )
-        result = await update_organization(client, other_child_ou, user_id_with_child_access, dto)
 
         assert result.status_code == 403
 
@@ -48,10 +48,10 @@ class TestOrganizationUnitUpdate:
         user_id_with_child_access: str,
         child_ou: str,
     ):
-        dto = OrganizationUnitUpdateDto(
-            name="New name"
+        dto = OrganizationUnitUpdateDto(name="New name")
+        result = await update_organization(
+            client, child_ou, user_id_with_child_access, dto
         )
-        result = await update_organization(client, child_ou, user_id_with_child_access, dto)
 
         assert result.status_code == 200
         assert result.json()["name"] == "New name"
@@ -63,10 +63,13 @@ class TestOrganizationUnitUpdate:
         user_id_with_child_access: str,
         child_of_child_ou: str,
     ):
-        dto = OrganizationUnitUpdateDto(
-            name="New name"
+        dto = OrganizationUnitUpdateDto(name="New name")
+        result = await update_organization(
+            client,
+            child_of_child_ou,
+            user_id_with_child_access,
+            dto,
         )
-        result = await update_organization(client, child_of_child_ou, user_id_with_child_access, dto)
 
         assert result.status_code == 200
         assert result.json()["name"] == "New name"

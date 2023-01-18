@@ -5,7 +5,7 @@ from async_asgi_testclient import TestClient
 
 from src.structures.configuration import Configuration
 from src.structures.domain.organization_units.models import OrganizationUnitFindDto
-from tests.helpers import find_organizations, delete_organization
+from tests.helpers import delete_organization, find_organizations
 
 logger = logging.getLogger(__name__)
 configuration = Configuration()
@@ -13,7 +13,9 @@ configuration = Configuration()
 
 class TestOrganizationUnitUpdate:
     @pytest.mark.asyncio
-    @pytest.mark.skip(reason="Gives different answer in single and a batch run")  # FIXME: find a reason
+    @pytest.mark.skip(
+        reason="Gives different answer in single and a batch run",
+    )  # FIXME: find a reason
     async def test_with_root_access_should_show_not_deleted(
         self,
         client: TestClient,

@@ -111,9 +111,7 @@ class OutletsRepository:
         ).single()
 
         query += " RETURN o"
-        query += (
-            f" SKIP {(pagination.page - 1) * pagination.limit} LIMIT {pagination.limit}",
-        )
+        query += f" SKIP {(pagination.page - 1) * pagination.limit} LIMIT {pagination.limit}"  # noqa
 
         result = await self.tx.run(query, available_ou=available_ou, **params)
         result_pagination = Pagination(
