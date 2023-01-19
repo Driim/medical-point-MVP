@@ -1,7 +1,7 @@
 from async_asgi_testclient import TestClient
 from async_asgi_testclient.response import Response
 from faker import Faker
-from faker.providers import address, company
+from faker.providers import address, company, person
 
 from src.structures.domain.organization_units.models import (
     OrganizationUnitCreateDto,
@@ -9,10 +9,15 @@ from src.structures.domain.organization_units.models import (
     OrganizationUnitUpdateDto,
 )
 from src.structures.domain.outlets.models import OutletCreateDto
+from src.structures.domain.workers.models import WorkerCreateDto
 
 fake = Faker("ru_RU")
 fake.add_provider(company)
 fake.add_provider(address)
+
+fake_person = Faker("ru_RU")
+fake_person.add_provider(address)
+fake_person.add_provider(person)
 
 
 async def create_organization(
@@ -80,4 +85,21 @@ async def delete_outlet(client: TestClient, outlet_id: str, user: str) -> Respon
     return await client.delete(
         f"/outlets/{outlet_id}",
         headers={"X-User-Id": user},
+    )
+
+
+async def create_worker(
+    client: TestClient, parent_ou: str | None, user_id: str
+) -> Response:
+    dto = WorkerCreateDto(
+        fio=fake_person.name(),
+        drivers_license=fake.businesses_inn(),
+        active=True,
+        organization_unit_id=parent_ou,
+    )
+
+    return await client.post(
+        "/workers",
+        data=dto.json(),
+        headers={"X-User-Id": user_id},
     )

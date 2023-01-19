@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, status
 from fastapi_restful.cbv import cbv
 
 from src.common.auth import get_user_id
@@ -43,7 +43,11 @@ class WorkersController:
         return await self.service.find(dto, pagination, self.user_id)
 
     @Transactional()
-    @router.post("/workers", response_model=Worker)
+    @router.post(
+        "/workers",
+        response_model=Worker,
+        status_code=status.HTTP_201_CREATED,
+    )
     async def create_worker(self, dto: WorkerCreateDto):
         return await self.service.create(dto, self.user_id)
 
