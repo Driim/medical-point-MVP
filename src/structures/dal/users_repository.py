@@ -134,3 +134,28 @@ class UsersRepository:
             )  # noqa
         ).single()
         return True if result is not None else False
+
+    async def have_write_access_by_outlet(
+        self,
+        user_id: str,
+        outlet_id: str,
+        root_ou: str,
+        access_right: str,
+    ) -> bool:
+        query = "OPTIONAL MATCH (o:Outlet {id: $outlet_id})-[:BELONG_TO]->(:OrganizationUnit)"
+        query += "-[:CHILD_OF*0..10]->(p:OrganizationUnit)-[:CHILD_OF*0..10]->(root:RootOrganizationUnit)"
+        query += " WITH collect(p.id) + [$root_ou] as path_ids"
+        query += " MATCH (u:USER {id: $id})"
+        query += f"-[r:{access_right}]->"
+        query += "(ou:OrganizationUnit|RootOrganizationUnit)"
+        query += " WHERE ou.id IN path_ids AND u.deleted IS NULL RETURN r"
+
+        result = await (
+            await self.tx.run(
+                query,
+                id=user_id,
+                outlet_id=outlet_id,
+                root_ou=root_ou,
+            )  # noqa
+        ).single()
+        return True if result is not None else False

@@ -78,13 +78,15 @@ class DeviceService:
     async def _base_to_device(self, base: DeviceBase) -> Device:
         ou = await self._outlet_repo.get_by_id(base.outlet_id)
         ou_path = await self._org_unit_repo.path_to_organization_unit(
-            ou.id,
+            ou.organization_unit_id,
             self._request.app.state.ROOT_OU,
         )
         return Device(materialized_path=ou_path, **base.dict())
 
     async def create(self, dto: DeviceCreateDto, user_id: str) -> Device:
-        if not await self._user_service.have_write_access(user_id, dto.outlet_id):
+        if not await self._user_service.have_write_access_by_outlet(
+            user_id, dto.outlet_id
+        ):
             raise OutletWriteAccessException(user_id, dto.outlet_id)
 
         base = await self._repository.create(dto)

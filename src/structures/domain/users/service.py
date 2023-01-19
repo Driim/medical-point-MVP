@@ -43,12 +43,20 @@ class UserService:
         )
 
     async def have_write_access_by_outlet(self, user_id: str, outlet_id: str) -> bool:
-        # TODO:
-        return True
+        return await self.repository.have_write_access_by_outlet(
+            user_id,
+            outlet_id,
+            self.request.app.state.ROOT_OU,
+            "WRITE_ACCESS",
+        )
 
     async def have_read_access_by_outlet(self, user_id, outlet_id: str) -> bool:
-        # TODO:
-        return True
+        return await self.repository.have_write_access_by_outlet(
+            user_id,
+            outlet_id,
+            self.request.app.state.ROOT_OU,
+            "READ_ACCESS",
+        )
 
     async def get_available_organization_units(self, user_id: str) -> list[str]:
         result = set()

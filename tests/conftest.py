@@ -9,7 +9,12 @@ from neo4j import GraphDatabase
 from src.structures.application import initialize_application
 from src.structures.configuration import Configuration
 from src.structures.domain.users.models import UserCreateDto
-from tests.helpers import create_organization, create_outlet, create_worker
+from tests.helpers import (
+    create_device,
+    create_organization,
+    create_outlet,
+    create_worker,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -201,5 +206,36 @@ async def child_of_child_ou_worker(
     client: TestClient, child_of_child_ou: str, user_id_with_root_access: str
 ) -> str:
     result = await create_worker(client, child_of_child_ou, user_id_with_root_access)
+
+    yield result.json()["id"]
+
+
+@pytest_asyncio.fixture
+async def child_ou_device(
+    client: TestClient, child_ou_outlet: str, user_id_with_root_access: str
+) -> str:
+    result = await create_device(client, child_ou_outlet, user_id_with_root_access)
+
+    yield result.json()["id"]
+
+
+@pytest_asyncio.fixture
+async def other_child_ou_device(
+    client: TestClient, other_child_ou_outlet: str, user_id_with_root_access: str
+) -> str:
+    result = await create_device(
+        client, other_child_ou_outlet, user_id_with_root_access
+    )
+
+    yield result.json()["id"]
+
+
+@pytest_asyncio.fixture
+async def child_of_child_ou_device(
+    client: TestClient, child_of_child_ou_outlet: str, user_id_with_root_access: str
+) -> str:
+    result = await create_device(
+        client, child_of_child_ou_outlet, user_id_with_root_access
+    )
 
     yield result.json()["id"]

@@ -3,6 +3,7 @@ from async_asgi_testclient.response import Response
 from faker import Faker
 from faker.providers import address, company, person
 
+from src.structures.domain.devices.models import DeviceCreateDto
 from src.structures.domain.organization_units.models import (
     OrganizationUnitCreateDto,
     OrganizationUnitFindDto,
@@ -88,9 +89,7 @@ async def delete_outlet(client: TestClient, outlet_id: str, user: str) -> Respon
     )
 
 
-async def create_worker(
-    client: TestClient, parent_ou: str | None, user_id: str
-) -> Response:
+async def create_worker(client: TestClient, parent_ou: str, user_id: str) -> Response:
     dto = WorkerCreateDto(
         fio=fake_person.name(),
         drivers_license=fake.businesses_inn(),
@@ -100,6 +99,22 @@ async def create_worker(
 
     return await client.post(
         "/workers",
+        data=dto.json(),
+        headers={"X-User-Id": user_id},
+    )
+
+
+async def create_device(
+    client: TestClient, parent_outlet: str, user_id: str
+) -> Response:
+    dto = DeviceCreateDto(
+        license=fake.businesses_inn(),
+        active=True,
+        outlet_id=parent_outlet,
+    )
+
+    return await client.post(
+        "/devices",
         data=dto.json(),
         headers={"X-User-Id": user_id},
     )

@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, status
 from fastapi_restful.cbv import cbv
 
 from src.common.auth import get_user_id
@@ -10,6 +10,7 @@ from src.common.neo4j import Transactional, TransactionalRouter
 from src.structures.domain.devices.models import (
     Device,
     DeviceCreateDto,
+    DeviceFindDto,
     DevicePaginatedDto,
     DeviceUpdateDto,
 )
@@ -36,10 +37,19 @@ class DevicesController:
         child_of_organization_unit: str | None = None,
         child_of_outlet: str | None = None,
     ):
-        pass
+        dto = DeviceFindDto(
+            child_of_organization_unit=child_of_organization_unit,
+            child_of_outlet=child_of_outlet,
+            active=active,
+        )
+        return await self.service.find(dto, pagination, self.user_id)
 
     @Transactional()
-    @router.post("/devices", response_model=Device)
+    @router.post(
+        "/devices",
+        response_model=Device,
+        status_code=status.HTTP_201_CREATED,
+    )
     async def create_device(self, dto: DeviceCreateDto):
         return await self.service.create(dto, self.user_id)
 

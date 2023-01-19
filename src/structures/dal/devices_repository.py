@@ -100,13 +100,21 @@ class DevicesRepository:
 
         if available_ou:
             query = f"MATCH (p:{'|'.join(['OrganizationUnit', 'RootOrganizationUnit'])}) WHERE p.id IN $available_ou "
+            query += (
+                f"MATCH (o:{'|'.join(self.node_labels)})-[:{self.relation}]"
+                f"->(:Outlet)-[:BELONG_TO]->()-[:CHILD_OF*0..10]->(p)"
+            )
 
         if available_outlets:
             query = f"MATCH (p:{'|'.join('Outlet')}) WHERE p.id IN $available_outlets "
+            query += (
+                f"MATCH (o:{'|'.join(self.node_labels)})-[:{self.relation}]"
+                f"->(p:Outlet)"
+            )
 
-        query += " WHERE o.deleted IS NULL "
+        query += " WHERE p.deleted IS NULL AND o.deleted IS NULL "
         if lines:
-            query += " ".join(lines)
+            query += " AND ".join(lines)
 
         count_query = str(query)
         count_query += " RETURN count(o) as count"
