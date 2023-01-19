@@ -20,15 +20,21 @@ fake_person = Faker("ru_RU")
 fake_person.add_provider(address)
 fake_person.add_provider(person)
 
+organization_counter = 0
+outlet_counter = 0
+workers_counter = 0
+devices_counter = 0
+
 
 async def create_organization(
     client: TestClient,
     parent_ou: str | None,
     user_id: str,
 ) -> Response:
+    global organization_counter
+    organization_counter += 1
     create_ou_dto = OrganizationUnitCreateDto(
-        # TODO: generate random
-        name=fake.company(),
+        name=f"{organization_counter}-{fake.company()}",
         inn=fake.businesses_inn(),
         kpp=fake.kpp(),
         legal_address=fake.address(),
@@ -68,8 +74,10 @@ async def find_organizations(
 async def create_outlet(
     client: TestClient, parent_ou: str | None, user_id: str
 ) -> Response:
+    global outlet_counter
+    outlet_counter += 1
     dto = OutletCreateDto(
-        name=fake.name(),
+        name=f"{outlet_counter}-{fake.name()}",
         address=fake.address(),
         active=True,
         organization_unit_id=parent_ou,
@@ -90,8 +98,10 @@ async def delete_outlet(client: TestClient, outlet_id: str, user: str) -> Respon
 
 
 async def create_worker(client: TestClient, parent_ou: str, user_id: str) -> Response:
+    global workers_counter
+    workers_counter += 1
     dto = WorkerCreateDto(
-        fio=fake_person.name(),
+        fio=f"{workers_counter}-{fake_person.name()}",
         drivers_license=fake.businesses_inn(),
         active=True,
         organization_unit_id=parent_ou,
@@ -107,8 +117,10 @@ async def create_worker(client: TestClient, parent_ou: str, user_id: str) -> Res
 async def create_device(
     client: TestClient, parent_outlet: str, user_id: str
 ) -> Response:
+    global devices_counter
+    devices_counter += 1
     dto = DeviceCreateDto(
-        license=fake.businesses_inn(),
+        license=f"{devices_counter}-{fake.businesses_inn()}",
         active=True,
         outlet_id=parent_outlet,
     )

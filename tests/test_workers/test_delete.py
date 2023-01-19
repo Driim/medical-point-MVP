@@ -66,10 +66,3 @@ class TestWorkerDelete:
         assert await is_deleted(
             client, child_of_child_ou_worker, user_id_with_child_access
         )
-
-    @pytest.mark.asyncio
-    @pytest.mark.skip(
-        reason="Not implemented yet",
-    )
-    async def test_delete_allow_create_worker_with_same_license(self):
-        pass

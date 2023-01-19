@@ -1,6 +1,7 @@
 import pytest
 from async_asgi_testclient import TestClient
 
+from src.structures.domain.workers.models import WorkerCreateDto
 from tests.helpers import create_worker
 
 
@@ -40,9 +41,31 @@ class TestWorkerCreate:
         assert result.status_code == 201
 
     @pytest.mark.asyncio
-    @pytest.mark.skip(
-        reason="Not implemented yet",
-    )
-    async def test_you_can_create_two_workers_with_same_driver_license_in_ou(self):
-        # FIXME: implement
-        pass
+    # @pytest.mark.skip(
+    #     reason="Not implemented yet",
+    # )
+    async def test_you_can_create_two_workers_with_same_driver_license_in_ou(
+        self, client: TestClient, user_id_with_child_access: str, child_ou: str
+    ):
+        dto = WorkerCreateDto(
+            fio="Test",
+            drivers_license="123456789",
+            active=True,
+            organization_unit_id=child_ou,
+        )
+
+        result = await client.post(
+            "/workers",
+            data=dto.json(),
+            headers={"X-User-Id": user_id_with_child_access},
+        )
+
+        assert result.status_code == 201
+
+        result = await client.post(
+            "/workers",
+            data=dto.json(),
+            headers={"X-User-Id": user_id_with_child_access},
+        )
+
+        assert result.status_code == 422

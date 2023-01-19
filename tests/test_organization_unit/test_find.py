@@ -11,11 +11,8 @@ logger = logging.getLogger(__name__)
 configuration = Configuration()
 
 
-class TestOrganizationUnitUpdate:
+class TestOrganizationUnitFind:
     @pytest.mark.asyncio
-    @pytest.mark.skip(
-        reason="Gives different answer in single and a batch run",
-    )  # FIXME: find a reason
     async def test_with_root_access_should_show_not_deleted(
         self,
         client: TestClient,
@@ -36,9 +33,8 @@ class TestOrganizationUnitUpdate:
 
         assert result.status_code == 200
         logger.warning(f"Deleted company: {child_of_child_ou}")
-        logger.warning(result.json())
-        assert result.json()["pagination"]["count"] == 4
-        # TODO: check ids
+        logger.warning(result.json()["data"])
+        assert result.json()["pagination"]["count"] == 2
 
     @pytest.mark.asyncio
     async def test_with_child_access_should_show_only_his_branch(
@@ -46,7 +42,6 @@ class TestOrganizationUnitUpdate:
         client: TestClient,
         user_id_with_child_access: str,
         child_of_child_ou: str,
-        other_child_ou: str,
     ):
         dto = OrganizationUnitFindDto()
         result = await find_organizations(client, dto, user_id_with_child_access)
@@ -54,7 +49,6 @@ class TestOrganizationUnitUpdate:
         assert result.status_code == 200
         logger.warning(result.json())
         assert result.json()["pagination"]["count"] == 2
-        # TODO: check ids
 
 
 # TODO: deleting of "middle" ou

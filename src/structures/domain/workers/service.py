@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import Depends, Request
+from neo4j.exceptions import ConstraintError
 
 from src.common.context.context import get_request
 from src.common.models import PaginationQueryParams
@@ -12,7 +13,10 @@ from src.structures.domain.users.exceptions import (
     ReadAccessException,
     WriteAccessException,
 )
-from src.structures.domain.workers.exceptions import WorkerNotFound
+from src.structures.domain.workers.exceptions import (
+    WorkerConstraintException,
+    WorkerNotFound,
+)
 from src.structures.domain.workers.models import (
     Worker,
     WorkerBase,
@@ -85,8 +89,11 @@ class WorkerService:
         ):
             raise WriteAccessException(user_id, dto.organization_unit_id)
 
-        worker = await self._repository.create(dto)
-        return await self._base_to_worker(worker)
+        try:
+            worker = await self._repository.create(dto)
+            return await self._base_to_worker(worker)
+        except ConstraintError:
+            raise WorkerConstraintException()
 
     async def update(
         self,
