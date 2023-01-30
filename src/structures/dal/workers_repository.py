@@ -132,4 +132,16 @@ class WorkersRepository:
         worker: WorkerBase,
         new_parent_id: str,
     ) -> WorkerBase:
-        pass
+        query = "MATCH (n_parent:OrganizationUnit { id: $new_parent_id }) "
+        query += prepare_get_by_id_query(self.node_labels, self.relation)
+        query += " DELETE r "
+        query += f"CREATE (o)-[:{self.relation}]->(n_parent)"
+
+        await (
+            await self.tx.run(query, id=worker.id, new_parent_id=new_parent_id)
+        ).single()
+
+        # worker also had organization_unit_id because uses uniq index,
+        # so we need to update both relation and data
+        worker.organization_unit_id = new_parent_id
+        return await self.save(worker)

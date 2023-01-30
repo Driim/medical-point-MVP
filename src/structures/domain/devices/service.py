@@ -177,5 +177,5 @@ class DeviceService:
         ):
             raise OutletWriteAccessException(user_id, new_parent_outlet)
 
-        base = await self._repository.change_parent_ou(device, new_parent_outlet)
+        base = await self._repository.change_parent_outlet(device, new_parent_outlet)
         return await self._base_to_device(base)

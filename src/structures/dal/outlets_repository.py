@@ -131,4 +131,13 @@ class OutletsRepository:
         outlet: OutletBase,
         new_parent_id: str,
     ) -> OutletBase:
-        pass
+        query = "MATCH (n_parent:OrganizationUnit { id: $new_parent_id }) "
+        query += prepare_get_by_id_query(self.node_labels, self.relation)
+        query += " DELETE r "
+        query += f"CREATE (o)-[:{self.relation}]->(n_parent) "
+
+        await (
+            await self.tx.run(query, id=outlet.id, new_parent_id=new_parent_id)
+        ).single()
+
+        return await self.get_by_id(outlet.id)

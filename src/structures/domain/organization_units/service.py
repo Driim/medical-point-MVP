@@ -157,7 +157,7 @@ class OrganizationUnitService:
     ) -> OrganizationUnit:
         ou = await self._get_by_id_access_right_checked(id, user_id, "WRITE")
 
-        if not self._user_service.have_write_access(user_id, new_parent):
+        if not await self._user_service.have_write_access(user_id, new_parent):
             raise WriteAccessException(user_id, new_parent)
 
         ou = await self.repository.change_parent_ou(ou, new_parent)

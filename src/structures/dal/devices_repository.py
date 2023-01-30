@@ -141,9 +141,18 @@ class DevicesRepository:
 
         return DevicePaginatedDto(pagination=result_pagination, data=retval)
 
-    async def change_parent_ou(
+    async def change_parent_outlet(
         self,
         device: DeviceBase,
         new_parent_id: str,
     ) -> DeviceBase:
-        pass
+        query = "MATCH (n_parent:Outlet { id: $new_parent_id }) "
+        query += prepare_get_by_id_query(self.node_labels, self.relation)
+        query += " DELETE r "
+        query += f"CREATE (o)-[:{self.relation}]->(n_parent)"
+
+        await (
+            await self.tx.run(query, id=device.id, new_parent_id=new_parent_id)
+        ).single()
+
+        return await self.get_by_id(device.id)

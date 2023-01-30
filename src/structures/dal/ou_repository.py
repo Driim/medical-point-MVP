@@ -168,8 +168,18 @@ class OrganizationUnitsRepository:
         ou: OrganizationUnitBase,
         new_parent_id: str,
     ) -> OrganizationUnitBase:
-        # TODO: implement
-        pass
+        query = "MATCH (ou:OrganizationUnit { id: $id })-[r:CHILD_OF]->(p) "
+        query += "MATCH (n_parent:OrganizationUnit { id: $new_parent_id }) "
+        query += "WHERE ou.deleted IS NULL AND n_parent.deleted IS NULL "
+        query += "DELETE r "
+        query += "CREATE (ou)-[:CHILD_OF]->(n_parent) "
+        query += "RETURN ou { .*, parent_organization_unit: n_parent.id } as organization_unit"
+
+        result = await (
+            await self.tx.run(query, id=ou.id, new_parent_id=new_parent_id)
+        ).single()
+
+        return OrganizationUnitBase(**result["organization_unit"])
 
     async def path_to_organization_unit(
         self,
