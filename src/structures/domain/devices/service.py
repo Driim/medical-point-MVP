@@ -190,6 +190,8 @@ class DeviceService:
         if not await self._repository.can_take_exam_on_device(device_id, worker_id):
             raise DeviceExamAccessException(worker_id, device_id)
 
+        # TODO: worker OU and device OU can have agreement, check it
+
         base_device = await self._get_by_id(device_id)
         device = await self._base_to_device(base_device)
 

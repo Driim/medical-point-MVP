@@ -31,7 +31,7 @@ async def get_device_exam(
 
 class TestDeviceGetExam:
     @pytest.mark.asyncio
-    async def test_worker_can_take_exam_on_same_ou_devices(
+    async def test_worker_on_same_ou_devices_can_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -44,7 +44,7 @@ class TestDeviceGetExam:
         )
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_other_ou_devices(
+    async def test_worker_on_other_ou_devices_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -54,7 +54,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_child_of_child_ou_devices(
+    async def test_worker_on_child_of_child_ou_devices_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -67,7 +67,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_devices_if_ou_deleted(
+    async def test_worker_with_ou_deleted_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -82,7 +82,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_devices_if_device_deleted(
+    async def test_worker_with_device_deleted_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -96,7 +96,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_worker_if_worker_deleted(
+    async def test_worker_with_worker_deleted_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -110,7 +110,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_worker_if_outlet_deleted(
+    async def test_worker_with_outlet_deleted_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -125,7 +125,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_devices_if_ou_deactivated(
+    async def test_worker_with_ou_deactivated_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -142,7 +142,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_devices_if_device_deactivated(
+    async def test_worker_with_device_deactivated_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -158,7 +158,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_worker_if_worker_deactivated(
+    async def test_worker_with_worker_deactivated_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
@@ -174,7 +174,7 @@ class TestDeviceGetExam:
         assert result.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_worker_can_not_take_exam_on_ou_worker_if_outlet_deactivated(
+    async def test_worker_with_outlet_deactivated_can_not_take_exam(
         self,
         client: TestClient,
         child_ou_device: str,
