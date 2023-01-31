@@ -155,7 +155,7 @@ paths:
               $ref: '#/components/schemas/OrganizationUnitCreateDto'
         required: true
       responses:
-        '200':
+        '201':
           description: Successful Response
           content:
             application/json:
@@ -414,7 +414,7 @@ paths:
               $ref: '#/components/schemas/OutletCreateDto'
         required: true
       responses:
-        '200':
+        '201':
           description: Successful Response
           content:
             application/json:
@@ -679,7 +679,7 @@ paths:
               $ref: '#/components/schemas/DeviceCreateDto'
         required: true
       responses:
-        '200':
+        '201':
           description: Successful Response
           content:
             application/json:
@@ -778,6 +778,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Device'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - UserIdSchema: []
+  /devices/{device_id}/exam/{worker_id}:
+    get:
+      tags:
+        - Devices
+        - Devices
+      summary: Can Take Exam On Device
+      operationId: can_take_exam_on_device_devices__device_id__exam__worker_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Device Id
+            type: string
+          name: device_id
+          in: path
+        - required: true
+          schema:
+            title: Worker Id
+            type: string
+          name: worker_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceExamForWorker'
         '422':
           description: Validation Error
           content:
@@ -938,7 +973,7 @@ paths:
               $ref: '#/components/schemas/WorkerCreateDto'
         required: true
       responses:
-        '200':
+        '201':
           description: Successful Response
           content:
             application/json:
@@ -1332,6 +1367,17 @@ components:
         outlet_id:
           title: Outlet Id
           type: string
+    DeviceExamForWorker:
+      title: DeviceExamForWorker
+      required:
+        - device
+        - worker
+      type: object
+      properties:
+        device:
+          $ref: '#/components/schemas/Device'
+        worker:
+          $ref: '#/components/schemas/Worker'
     DevicePaginatedDto:
       title: DevicePaginatedDto
       required:
@@ -1370,8 +1416,8 @@ components:
         - inn
         - kpp
         - active
-        - parent_organization_unit
         - filler
+        - parent_organization_unit
         - materialized_path
       type: object
       properties:
@@ -1390,26 +1436,66 @@ components:
         active:
           title: Active
           type: boolean
-        parent_organization_unit:
-          title: Parent Organization Unit
-          type: string
         filler:
           title: Filler
+          type: string
+        parent_organization_unit:
+          title: Parent Organization Unit
           type: string
         materialized_path:
           title: Materialized Path
           type: array
           items:
             type: string
-    OrganizationUnitBase:
-      title: OrganizationUnitBase
+    OrganizationUnitCreateDto:
+      title: OrganizationUnitCreateDto
+      required:
+        - name
+        - inn
+        - kpp
+        - filler
+      type: object
+      properties:
+        parent_organization_unit:
+          title: Parent Organization Unit
+          type: string
+        name:
+          title: Name
+          type: string
+        inn:
+          title: Inn
+          type: integer
+        kpp:
+          title: Kpp
+          type: integer
+        filler:
+          title: Filler
+          type: string
+        active:
+          title: Active
+          type: boolean
+    OrganizationUnitPaginated:
+      title: OrganizationUnitPaginated
+      required:
+        - pagination
+        - data
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          title: Data
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationUnitShort'
+    OrganizationUnitShort:
+      title: OrganizationUnitShort
       required:
         - id
         - name
         - inn
         - kpp
         - active
-        - parent_organization_unit
         - filler
       type: object
       properties:
@@ -1428,62 +1514,11 @@ components:
         active:
           title: Active
           type: boolean
-        parent_organization_unit:
-          title: Parent Organization Unit
-          type: string
         filler:
           title: Filler
           type: string
-    OrganizationUnitCreateDto:
-      title: OrganizationUnitCreateDto
-      required:
-        - name
-        - inn
-        - kpp
-        - legal_address
-        - ogrn
-        - filler
-      type: object
-      properties:
-        parent_organization_unit:
-          title: Parent Organization Unit
-          type: string
-        name:
-          title: Name
-          type: string
-        inn:
-          title: Inn
-          type: integer
-        kpp:
-          title: Kpp
-          type: integer
-        legal_address:
-          title: Legal Address
-          type: string
-        ogrn:
-          title: Ogrn
-          type: integer
-        filler:
-          title: Filler
-          type: string
-    OrganizationUnitPaginated:
-      title: OrganizationUnitPaginated
-      required:
-        - pagination
-        - data
-      type: object
-      properties:
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        data:
-          title: Data
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationUnitBase'
     OrganizationUnitUpdateDto:
       title: OrganizationUnitUpdateDto
-      required:
-        - filler
       type: object
       properties:
         name:
@@ -1494,12 +1529,6 @@ components:
           type: integer
         kpp:
           title: Kpp
-          type: integer
-        legal_address:
-          title: Legal Address
-          type: string
-        ogrn:
-          title: Ogrn
           type: integer
         filler:
           title: Filler
@@ -1626,10 +1655,14 @@ components:
       title: User
       required:
         - id
+        - name
       type: object
       properties:
         id:
           title: Id
+          type: string
+        name:
+          title: Name
           type: string
         read:
           title: Read
@@ -1665,8 +1698,13 @@ components:
             type: string
     UserCreateDto:
       title: UserCreateDto
+      required:
+        - name
       type: object
       properties:
+        name:
+          title: Name
+          type: string
         read:
           title: Read
           type: array
@@ -1729,6 +1767,31 @@ components:
           type: array
           items:
             type: string
+    WorkerBase:
+      title: WorkerBase
+      required:
+        - id
+        - fio
+        - drivers_license
+        - active
+        - organization_unit_id
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        fio:
+          title: Fio
+          type: string
+        drivers_license:
+          title: Drivers License
+          type: string
+        active:
+          title: Active
+          type: boolean
+        organization_unit_id:
+          title: Organization Unit Id
+          type: string
     WorkerCreateDto:
       title: WorkerCreateDto
       required:
@@ -1763,7 +1826,7 @@ components:
           title: Data
           type: array
           items:
-            $ref: '#/components/schemas/Worker'
+            $ref: '#/components/schemas/WorkerBase'
     WorkerUpdateDto:
       title: WorkerUpdateDto
       type: object
