@@ -44,8 +44,6 @@ class OrganizationUnitsRepository:
         query = "MATCH (p:OrganizationUnit|RootOrganizationUnit {id: $parent_id}) \n"
         query += "CREATE (ou:OrganizationUnit { "
 
-        params["active"] = False
-
         lines = ["id: randomUUID()"]
         for key in params:
             lines.append(f"{key}: ${key}")

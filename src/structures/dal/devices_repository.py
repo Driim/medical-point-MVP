@@ -156,3 +156,21 @@ class DevicesRepository:
         ).single()
 
         return await self.get_by_id(device.id)
+
+    async def can_take_exam_on_device(self, device_id: str, worker_id: str) -> bool:
+        # TODO: Refactor
+        query = f"MATCH (d:{'|'.join(self.node_labels)} {{id: $device_id}})-[:{self.relation}]->(o:Outlet)"
+        query += "-[:BELONG_TO]->(ou:OrganizationUnit)<-[:WORK_IN]-(w:Worker {id: $worker_id}) "
+        query += "WHERE d.deleted IS NULL and o.deleted IS NULL and ou.deleted IS NULL and w.deleted IS NULL "
+        query += "and toBoolean(d.active) = true and toBoolean(o.active) = true "
+        query += "and toBoolean(ou.active) = true and toBoolean(w.active) = true "
+        query += "RETURN ou"
+
+        result = await (
+            await self.tx.run(query, device_id=device_id, worker_id=worker_id)
+        ).single()
+
+        if result:
+            return True
+
+        return False

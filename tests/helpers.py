@@ -41,6 +41,7 @@ async def create_organization(
         ogrn=fake.businesses_ogrn(),
         filler=fake.text(),
         parent_organization_unit=parent_ou,
+        active=True,
     )
 
     return await client.post(
@@ -61,6 +62,15 @@ async def update_organization(
 async def delete_organization(client: TestClient, ou_id: str, user: str) -> Response:
     return await client.delete(
         f"/organization-units/{ou_id}",
+        headers={"X-User-Id": user},
+    )
+
+
+async def deactivate_organization(
+    client: TestClient, ou_id: str, user: str
+) -> Response:
+    return await client.patch(
+        f"/organization-units/{ou_id}/deactivate",
         headers={"X-User-Id": user},
     )
 
@@ -87,13 +97,6 @@ async def create_outlet(
         "/outlets",
         data=dto.json(),
         headers={"X-User-Id": user_id},
-    )
-
-
-async def delete_outlet(client: TestClient, outlet_id: str, user: str) -> Response:
-    return await client.delete(
-        f"/outlets/{outlet_id}",
-        headers={"X-User-Id": user},
     )
 
 
@@ -129,4 +132,46 @@ async def create_device(
         "/devices",
         data=dto.json(),
         headers={"X-User-Id": user_id},
+    )
+
+
+async def delete_device(client: TestClient, device_id: str, user: str) -> Response:
+    return await client.delete(
+        f"/devices/{device_id}",
+        headers={"X-User-Id": user},
+    )
+
+
+async def deactivate_device(client: TestClient, device_id: str, user: str) -> Response:
+    return await client.patch(
+        f"/devices/{device_id}/deactivate",
+        headers={"X-User-Id": user},
+    )
+
+
+async def delete_worker(client: TestClient, worker_id: str, user: str) -> Response:
+    return await client.delete(
+        f"/workers/{worker_id}",
+        headers={"X-User-Id": user},
+    )
+
+
+async def deactivate_worker(client: TestClient, worker_id: str, user: str) -> Response:
+    return await client.patch(
+        f"/workers/{worker_id}/deactivate",
+        headers={"X-User-Id": user},
+    )
+
+
+async def delete_outlet(client: TestClient, outlet_id: str, user: str) -> Response:
+    return await client.delete(
+        f"/outlets/{outlet_id}",
+        headers={"X-User-Id": user},
+    )
+
+
+async def deactivate_outlet(client: TestClient, outlet_id: str, user: str) -> Response:
+    return await client.patch(
+        f"/outlets/{outlet_id}/deactivate",
+        headers={"X-User-Id": user},
     )

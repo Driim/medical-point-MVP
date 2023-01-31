@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from src.common.models import Pagination
+from src.structures.domain.workers.models import Worker
 
 
 class DeviceBase(BaseModel):
@@ -33,3 +34,8 @@ class DeviceFindDto(BaseModel):
 class DevicePaginatedDto(BaseModel):
     pagination: Pagination
     data: list[DeviceBase]
+
+
+class DeviceExamForWorker(BaseModel):
+    device: Device
+    worker: Worker

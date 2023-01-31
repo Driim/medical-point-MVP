@@ -39,3 +39,11 @@ class OutletReadAccessException(HTTPException):
             status.HTTP_403_FORBIDDEN,
             f"User: {user_id} doesn't have read access to outlet: {outlet_id}",
         )
+
+
+class DeviceExamAccessException(HTTPException):
+    def __init__(self, device_id: str, worker_id: str) -> None:
+        super().__init__(
+            status.HTTP_403_FORBIDDEN,
+            f"Worker: {worker_id} doesn't have read access to device: {device_id}",
+        )

@@ -1,13 +1,7 @@
 import pytest
 from async_asgi_testclient import TestClient
-from async_asgi_testclient.response import Response
 
-
-async def delete_device(client: TestClient, device_id: str, user: str) -> Response:
-    return await client.delete(
-        f"/devices/{device_id}",
-        headers={"X-User-Id": user},
-    )
+from tests.helpers import delete_device
 
 
 async def is_deleted(client: TestClient, device_id: str, user: str) -> bool:

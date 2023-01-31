@@ -10,6 +10,7 @@ from src.common.neo4j import Transactional, TransactionalRouter
 from src.structures.domain.devices.models import (
     Device,
     DeviceCreateDto,
+    DeviceExamForWorker,
     DeviceFindDto,
     DevicePaginatedDto,
     DeviceUpdateDto,
@@ -83,6 +84,14 @@ class DevicesController:
     )
     async def change_outlet(self, device_id: str, new_outlet_id: str):
         return await self.service.change_outlet(device_id, new_outlet_id, self.user_id)
+
+    @Transactional()
+    @router.get(
+        "/devices/{device_id}/exam/{worker_id}", response_model=DeviceExamForWorker
+    )
+    async def can_take_exam_on_device(self, device_id: str, worker_id: str):
+        # user doesn't matter
+        return await self.service.can_take_exam_on_device(device_id, worker_id)
 
 
 def register_devices_router(application: FastAPI, version: str) -> None:

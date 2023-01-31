@@ -26,6 +26,7 @@ class OrganizationUnitCreateDto(BaseModel):
     inn: int
     kpp: int
     filler: str  # field to make one record 100 KB long
+    active: bool | None
 
 
 class OrganizationUnitUpdateDto(BaseModel):

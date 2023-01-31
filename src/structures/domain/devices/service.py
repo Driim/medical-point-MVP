@@ -8,21 +8,25 @@ from src.common.utils import update_model_by_dto
 from src.structures.dal.devices_repository import DevicesRepository
 from src.structures.dal.ou_repository import OrganizationUnitsRepository
 from src.structures.dal.outlets_repository import OutletsRepository
+from src.structures.dal.workers_repository import WorkersRepository
 from src.structures.domain.devices.exceptions import DeviceNotFound
 from src.structures.domain.devices.models import (
     Device,
     DeviceBase,
     DeviceCreateDto,
+    DeviceExamForWorker,
     DeviceFindDto,
     DevicePaginatedDto,
     DeviceUpdateDto,
 )
 from src.structures.domain.users import UserService
 from src.structures.domain.users.exceptions import (
+    DeviceExamAccessException,
     OutletReadAccessException,
     OutletWriteAccessException,
     ReadAccessException,
 )
+from src.structures.domain.workers.models import Worker
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +40,14 @@ class DeviceService:
             OrganizationUnitsRepository,
         ),
         outlet_repo: OutletsRepository = Depends(OutletsRepository),
+        worker_repo: WorkersRepository = Depends(WorkersRepository),
         request: Request = Depends(get_request),
     ):
         self._user_service = user_service
         self._repository = repository
         self._org_unit_repo = organization_unit_repo
         self._outlet_repo = outlet_repo
+        self._worker_repo = worker_repo
         self._request = request
 
     async def _get_by_id(self, device_id: str) -> DeviceBase:
@@ -179,3 +185,21 @@ class DeviceService:
 
         base = await self._repository.change_parent_outlet(device, new_parent_outlet)
         return await self._base_to_device(base)
+
+    async def can_take_exam_on_device(self, device_id: str, worker_id: str):
+        if not await self._repository.can_take_exam_on_device(device_id, worker_id):
+            raise DeviceExamAccessException(worker_id, device_id)
+
+        base_device = await self._get_by_id(device_id)
+        device = await self._base_to_device(base_device)
+
+        base_worker = await self._worker_repo.get_by_id(worker_id)
+        # copypaste from worker service
+        # TODO: can be optimized, second call not needed if same OU
+        ou_path = await self._org_unit_repo.path_to_organization_unit(
+            base_worker.organization_unit_id,
+            self._request.app.state.ROOT_OU,
+        )
+        worker = Worker(materialized_path=ou_path, **base_worker.dict())
+
+        return DeviceExamForWorker(worker=worker, device=device)

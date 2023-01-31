@@ -1,13 +1,7 @@
 import pytest
 from async_asgi_testclient import TestClient
-from async_asgi_testclient.response import Response
 
-
-async def delete_worker(client: TestClient, worker_id: str, user: str) -> Response:
-    return await client.delete(
-        f"/workers/{worker_id}",
-        headers={"X-User-Id": user},
-    )
+from tests.helpers import delete_worker
 
 
 async def is_deleted(client: TestClient, worker_id: str, user: str) -> bool:
