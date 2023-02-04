@@ -91,6 +91,13 @@ class DevicesRepository:
         pagination: PaginationQueryParams,
     ) -> DevicePaginatedDto:
         params = transform_to_dict(dto)
+
+        if "child_of_outlet" in params:
+            del params["child_of_outlet"]
+
+        if "child_of_organization_unit" in params:
+            del params["child_of_organization_unit"]
+
         lines = []
         if params:
             for key in params:
@@ -104,13 +111,17 @@ class DevicesRepository:
                 f"MATCH (o:{'|'.join(self.node_labels)})-[:{self.relation}]"
                 f"->(:Outlet)-[:BELONG_TO]->()-[:CHILD_OF*0..10]->(p)"
             )
+            params["available_ou"] = available_ou
 
         if available_outlets:
-            query = f"MATCH (p:{'|'.join('Outlet')}) WHERE p.id IN $available_outlets "
+            query = (
+                f"MATCH (p:{'|'.join(['Outlet'])}) WHERE p.id IN $available_outlets "
+            )
             query += (
                 f"MATCH (o:{'|'.join(self.node_labels)})-[:{self.relation}]"
                 f"->(p:Outlet)"
             )
+            params["available_outlets"] = available_outlets
 
         query += " WHERE p.deleted IS NULL AND o.deleted IS NULL "
         if lines:
@@ -119,16 +130,14 @@ class DevicesRepository:
         count_query = str(query)
         count_query += " RETURN count(o) as count"
 
-        count_result = await (
-            await self.tx.run(count_query, available_ou=available_ou, **params)  # noqa
-        ).single()
+        count_result = await (await self.tx.run(count_query, **params)).single()  # noqa
 
         query += " RETURN o"
         query += (
             f" SKIP {(pagination.page - 1) * pagination.limit} LIMIT {pagination.limit}"
         )
 
-        result = await self.tx.run(query, available_ou=available_ou, **params)
+        result = await self.tx.run(query, **params)
         result_pagination = Pagination(
             page=pagination.page,
             limit=pagination.limit,

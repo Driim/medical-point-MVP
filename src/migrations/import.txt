@@ -1,0 +1,6 @@
+Перед импортом нужно выполнить все команды из миграций, кроме создания рута
+После импорта модели необходимо преобразовать root из OrganizationUnit в RootOrganizationUnit:
+MATCH (ou:OrganizationUnit {id: "68d7de47-6f57-452c-9c7c-d3f3fdc4d041"}) SET ou:RootOrganizationUnit, ou.filler=null, ou.inn = null, ou.kpp = null, ou.name = null REMOVE ou:OrganizationUnit return ou
+
+А дальше нужно создать рут пользователя для работы:
+MATCH (root:RootOrganizationUnit {id: "68d7de47-6f57-452c-9c7c-d3f3fdc4d041"}) CREATE (u:USER { id: randomUUID(), name: "root" }) CREATE (u)-[:READ_ACCESS]->(root) CREATE (u)-[:WRITE_ACCESS]->(root) RETURN u.id

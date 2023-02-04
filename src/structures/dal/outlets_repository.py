@@ -91,6 +91,10 @@ class OutletsRepository:
         pagination: PaginationQueryParams,
     ) -> OutletPaginated:
         params = transform_to_dict(dto)
+
+        if "child_of" in params:
+            del params["child_of"]
+
         lines = []
         if params:
             for key in params:

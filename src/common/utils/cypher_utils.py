@@ -50,7 +50,7 @@ def prepare_find_query(
     lines: list[str],
 ) -> str:
     query = f"MATCH (p:{'|'.join(parent_labels)}) WHERE p.id IN $available_ou "
-    query += f"MATCH (o:{'|'.join(node_labels)})-[:{relation}*1..10]->()-[:CHILD_OF*0..10]->(p)"  # 1 to 10 hops
+    query += f"MATCH (o:{'|'.join(node_labels)})-[:{relation}]->()-[:CHILD_OF*0..10]->(p)"  # 1 to 10 hops
 
     query += " WHERE o.deleted IS NULL "
     if lines:
