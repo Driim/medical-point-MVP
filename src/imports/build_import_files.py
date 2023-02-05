@@ -1,5 +1,6 @@
 import csv
 from dataclasses import dataclass
+from itertools import cycle
 from os import path
 
 from pydantic import BaseModel
@@ -26,6 +27,11 @@ OU_FILE = "organization-units.csv"
 WORKERS_FILE = "workers.csv"
 OUTLETS_FILE = "outlets.csv"
 DEVICES_FILE = "devices.csv"
+OU_RELATION_FILE = "ou_to_ou.csv"
+OUTLETS_RELATION_FILE = "outlets_to_ou.csv"
+DEVICES_RELATION_FILE = "devices_to_outlets.csv"
+WORKERS_RELATION_FILE = "workers_to_ou.csv"
+REQUESTS_FILE = "ammo.txt"
 
 
 @dataclass
@@ -34,6 +40,11 @@ class Writers:
     outlet: csv.DictWriter
     device: csv.DictWriter
     worker: csv.DictWriter
+    ou_to_ou: any
+    outlet_to_ou: any
+    device_to_outlet: any
+    worker_to_ou: any
+    requests: any
 
 
 class Counters(BaseModel):
@@ -48,21 +59,45 @@ def get_writers(directory: str) -> Writers:
     outlet_file = open(path.join(directory, OUTLETS_FILE), "w")
     worker_file = open(path.join(directory, WORKERS_FILE), "w")
     device_file = open(path.join(directory, DEVICES_FILE), "w")
+    ou_to_ou_file = open(path.join(directory, OU_RELATION_FILE), "w")
+    outlet_to_ou_file = open(path.join(directory, OUTLETS_RELATION_FILE), "w")
+    device_to_outlet_file = open(path.join(directory, DEVICES_RELATION_FILE), "w")
+    worker_to_ou_file = open(path.join(directory, WORKERS_RELATION_FILE), "w")
+    requests_file = open(path.join(directory, REQUESTS_FILE), "w")
+
+    requests_file.writelines([
+        "[Connection: close]\n",
+        "[Cookie: None]\n",
+        "[X-User-Id: b75de436-e162-43a7-8f1a-ebaa26c74b69]\n",
+    ])
 
     ou_writer = csv.DictWriter(ou_file, OrganizationUnitBase.__fields__.keys())
-    ou_writer.writeheader()
+    # ou_writer.writeheader()
 
     outlet_writer = csv.DictWriter(outlet_file, OutletBase.__fields__.keys())
-    outlet_writer.writeheader()
+    # outlet_writer.writeheader()
 
     worker_writer = csv.DictWriter(worker_file, WorkerBase.__fields__.keys())
-    worker_writer.writeheader()
+    # worker_writer.writeheader()
 
     device_writer = csv.DictWriter(device_file, DeviceBase.__fields__.keys())
-    device_writer.writeheader()
+    # device_writer.writeheader()
+
+    ou_to_ou_writer = csv.writer(ou_to_ou_file)
+    outlet_to_ou_writer = csv.writer(outlet_to_ou_file)
+    device_to_outlet_writer = csv.writer(device_to_outlet_file)
+    worker_to_ou_writer = csv.writer(worker_to_ou_file)
 
     return Writers(
-        ou=ou_writer, outlet=outlet_writer, device=device_writer, worker=worker_writer
+        ou=ou_writer,
+        outlet=outlet_writer,
+        device=device_writer,
+        worker=worker_writer,
+        ou_to_ou=ou_to_ou_writer,
+        outlet_to_ou=outlet_to_ou_writer,
+        device_to_outlet=device_to_outlet_writer,
+        worker_to_ou=worker_to_ou_writer,
+        requests=requests_file,
     )
 
 
@@ -72,24 +107,34 @@ def build_ou(
     # build ou, outlets, devices and workers
     ou = generate_ou(level, counters.ou, root)
     writers.ou.writerow(ou.dict())
+    writers.ou_to_ou.writerow([ou.id, root])
 
-    for i in range(1, get_amount_of_workers()):
-        worker = generate_worker(ou.id, counters.ou, i)
-        writers.worker.writerow(worker.dict())
-
-        counters.workers += 1
+    device_ids = []
 
     for i in range(1, get_amount_of_outlets()):
         outlet = generate_outlet(ou.id, counters.ou, i)
 
         writers.outlet.writerow(outlet.dict())
+        writers.outlet_to_ou.writerow([outlet.id, ou.id])
         counters.outlets += 1
 
         for x in range(1, get_amount_of_devices()):
             device = generate_device(outlet.id, counters.ou, x)
 
             writers.device.writerow(device.dict())
+            writers.device_to_outlet.writerow([device.id, outlet.id])
+            device_ids.append(device.id)
             counters.devices += 1
+
+    devices_cycle_iterator = cycle(device_ids)
+    for i in range(1, get_amount_of_workers()):
+        worker = generate_worker(ou.id, counters.ou, i)
+        writers.worker.writerow(worker.dict())
+        writers.worker_to_ou.writerow([worker.id, ou.id])
+
+        writers.requests.write(f"/devices/{next(devices_cycle_iterator)}/exam/{worker.id}\n")
+
+        counters.workers += 1
 
     counters.ou += 1
 
@@ -117,6 +162,7 @@ def generate_database(directory: str, max_ou: int, root: str):
 
     ou = generate_ou(0, 0, root)
     ou.id = root  # root OU
+    ou.active = True
     ou.parent_organization_unit = None
     writers.ou.writerow(ou.dict())
 
@@ -134,6 +180,6 @@ def generate_database(directory: str, max_ou: int, root: str):
 if __name__ == "__main__":
     generate_database(
         "/Users/dmitriyfalko/work/import-data/",
-        100,
+        300,
         "68d7de47-6f57-452c-9c7c-d3f3fdc4d041",
     )

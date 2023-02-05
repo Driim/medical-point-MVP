@@ -16,3 +16,9 @@ run-structures:
 # For dev environment
 run-structures-dev:
 	@(export $(shell cat src/structures/.env) && poetry run python -m uvicorn src.structures.main:app --reload)
+
+run-generate-import:
+	@(export PYTHONPATH="${PYTHONPATH}:$(pwd)" && poetry run python src/imports/build_import_files.py)
+
+build:
+	docker build -f src/containers/structures/Dockerfile -t org-structures .

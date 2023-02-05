@@ -4,7 +4,7 @@ from random import randint
 
 def get_level_ou_amount() -> int:
     # TODO: implement using normal distribution between 1 and 100
-    return randint(1, 5)
+    return randint(1, 10)
 
 
 def get_subtree_depth() -> int:
@@ -14,7 +14,7 @@ def get_subtree_depth() -> int:
 
 def get_amount_of_outlets() -> int:
     # TODO: implement using normal distribution between 10 and 500
-    return randint(10, 40)
+    return randint(10, 30)
 
 
 def get_amount_of_devices() -> int:

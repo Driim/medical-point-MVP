@@ -9,7 +9,7 @@ class OrganizationUnitShort(BaseModel):
     inn: int
     kpp: int
     active: bool
-    filler: str  # field to make one record 100 KB long
+    filler: str | None  # field to make one record 100 KB long
 
 
 class OrganizationUnitBase(OrganizationUnitShort):

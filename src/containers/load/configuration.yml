@@ -1,0 +1,52 @@
+uploader:
+  enabled: true
+  package: yandextank.plugins.DataUploader
+  job_name: test704
+  job_dsc: ''
+  ver: ''
+  api_address: loadtesting.api.cloud.yandex.net:443
+pandora:
+  enabled: true
+  package: yandextank.plugins.Pandora
+  config_content:
+    pools:
+      - id: HTTP
+        gun:
+          type: http
+          target: 158.160.54.238:80
+          ssl: false
+        ammo:
+          type: uri
+          file: ammos/ammo.txt
+        result:
+          type: phout
+          destination: ./phout.log
+        startup:
+          type: once
+          times: 500
+        rps:
+          - duration: 360s
+            type: line
+            from: 1
+            to: 100
+    log:
+      level: error
+    monitoring:
+      expvar:
+        enabled: true
+        port: 1234
+telegraf:
+  config:
+    hosts:
+      localhost: null
+    metrics:
+      cpu: null
+      mem: null
+      diskio: null
+      net: null
+      netstat: null
+      system: null
+      kernel: null
+  enabled: true
+  package: yandextank.plugins.Telegraf
+core: {}
