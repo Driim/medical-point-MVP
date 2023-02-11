@@ -11,7 +11,7 @@ testing:
 
 # For production environment
 run-structures:
-	python -m uvicorn src.structures.main:app --port 80
+	@(export $(shell cat src/structures/.env) && poetry run python -m gunicorn src.structures.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80)
 
 # For dev environment
 run-structures-dev:
@@ -21,4 +21,7 @@ run-generate-import:
 	@(export PYTHONPATH="${PYTHONPATH}:$(pwd)" && poetry run python src/imports/build_import_files.py)
 
 build:
-	docker build -f src/containers/structures/Dockerfile -t org-structures .
+	docker build -f src/containers/structures/Dockerfile -t cr.yandex/crpqf6q24glns01tar7l/org-structures:latest .
+
+push:
+	docker push cr.yandex/crpqf6q24glns01tar7l/org-structures:latest

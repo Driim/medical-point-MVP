@@ -12,10 +12,12 @@ services:
       - /home/yc-user/coi-import:/import
     environment:
       - NEO4J_AUTH=neo4j/yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y
-      - NEO4J_server_memory_heap_initial__size=512m
-      - NEO4J_server_memory_heap_max__size=512m
-      - NEO4J_server_memory_pagecache_size=512m
+      - NEO4J_server_memory_heap_initial__size=3600m
+      - NEO4J_server_memory_heap_max__size=3600m
+      - NEO4J_server_memory_pagecache_size=2g
       - NEO4J_server_jvm_additional=-XX:+ExitOnOutOfMemoryError
+      - NEO4J_server_bolt_thread__pool__min__size=20
+      - NEO4J_server_bolt_thread__pool__max__size=1000
 x-yc-disks:
   - device_name: coi-data
     fs_type: ext4

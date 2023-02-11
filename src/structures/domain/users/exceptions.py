@@ -45,5 +45,5 @@ class DeviceExamAccessException(HTTPException):
     def __init__(self, device_id: str, worker_id: str) -> None:
         super().__init__(
             status.HTTP_403_FORBIDDEN,
-            f"Worker: {worker_id} doesn't have read access to device: {device_id}",
+            f"Worker: {worker_id} doesn't have access to device: {device_id}",
         )

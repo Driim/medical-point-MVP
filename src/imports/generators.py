@@ -1,4 +1,5 @@
-from random import getrandbits
+# flake8: noqa: S311
+from random import randrange
 from uuid import uuid4
 
 from faker import Faker
@@ -19,6 +20,11 @@ fake_person.add_provider(address)
 fake_person.add_provider(person)
 
 
+def get_bool_with_80_percent_chance_to_have_true():
+    num = randrange(10)
+    return True if num <= 7 else False
+
+
 def generate_ou(level: int, ou_count: int, parent_ou: str) -> OrganizationUnitBase:
     return OrganizationUnitBase(
         id=str(uuid4()),
@@ -29,7 +35,7 @@ def generate_ou(level: int, ou_count: int, parent_ou: str) -> OrganizationUnitBa
         ogrn=fake.businesses_ogrn(),
         filler="",
         parent_organization_unit=parent_ou,
-        active=bool(getrandbits(1)),
+        active=get_bool_with_80_percent_chance_to_have_true(),
     )
 
 
@@ -38,7 +44,7 @@ def generate_outlet(parent_ou: str, ou_count: int, outlet_count: int) -> OutletB
         id=str(uuid4()),
         name=f"{ou_count}-{outlet_count}-{fake.word()}",
         address=fake.address(),
-        active=bool(getrandbits(1)),
+        active=get_bool_with_80_percent_chance_to_have_true(),
         organization_unit_id=parent_ou,
     )
 
@@ -47,7 +53,7 @@ def generate_device(parent_outlet: str, ou_count: int, device_count: int) -> Dev
     return DeviceBase(
         id=str(uuid4()),
         license=f"{ou_count}-{device_count}-{fake.businesses_inn()}",
-        active=bool(getrandbits(1)),
+        active=get_bool_with_80_percent_chance_to_have_true(),
         outlet_id=parent_outlet,
     )
 
@@ -57,6 +63,6 @@ def generate_worker(parent_ou: str, ou_count: int, worker_count: int) -> WorkerB
         id=str(uuid4()),
         fio=f"{ou_count}-{worker_count}-{fake_person.name()}",
         drivers_license=f"{ou_count}{worker_count}{fake.businesses_inn()}",
-        active=bool(getrandbits(1)),
+        active=get_bool_with_80_percent_chance_to_have_true(),
         organization_unit_id=parent_ou,
     )

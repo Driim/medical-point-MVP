@@ -1,4 +1,6 @@
 yc compute instance create-with-container \
+  --cores 4 \
+  --memory 8G \
   --name neo4j-vm \
   --zone ru-central1-a \
   --create-boot-disk size=30 \

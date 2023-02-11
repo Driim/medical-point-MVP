@@ -1,4 +1,6 @@
 yc compute instance create-with-container \
+  --cores 8 \
+  --memory 16G \
   --name service-vm \
   --zone ru-central1-a \
   --create-boot-disk size=30 \

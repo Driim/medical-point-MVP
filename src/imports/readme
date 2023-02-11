@@ -1,0 +1,6 @@
+sed -i '' 's/False/false/g' *.csv
+sed -i '' 's/True/true/g' *.csv
+
+for linux
+sed -i 's/False/false/g' *.csv
+sed -i 's/True/true/g' *.csv

@@ -23,4 +23,5 @@ RUN poetry config virtualenvs.create false \
 # Creating folders, and files for a project:
 COPY src /app/src
 
-CMD ["python", "-m", "uvicorn", "src.structures.main:app", "--host", "0.0.0.0", "--port", "80"]
+#CMD ["python", "-m", "uvicorn", "src.structures.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python", "-m", "gunicorn", "src.structures.main:app", "--workers", "2", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:80"]

@@ -126,7 +126,7 @@ class OrganizationUnitsRepository:
                 lines.append(f"ou.{key} = ${key}")
 
         if lines:
-            query += " WHERE ou.deleted is NULL " + " ".join(lines)
+            query += " WHERE ou.deleted is NULL " + " AND ".join(lines)
         else:
             query += " WHERE ou.deleted is NULL "
 

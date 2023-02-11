@@ -1,4 +1,6 @@
+import uptrace
 from fastapi import FastAPI
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from src.common.context import initialize_context_middleware
 from src.common.health_checks import register_health_checks
@@ -24,6 +26,15 @@ def initialize_application(config: Configuration) -> FastAPI:
         title="Structures service",
         version="0.1",
     )
+
+    uptrace.configure_opentelemetry(
+        # Copy DSN here or use UPTRACE_DSN env var.
+        dsn=config.uptrace_dsn,
+        service_name="Org Structures",
+        service_version="1.0.0",
+    )
+
+    FastAPIInstrumentor.instrument_app(application)
 
     application.state.ROOT_OU = config.root_ou
 
