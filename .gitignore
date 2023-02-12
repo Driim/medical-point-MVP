@@ -4,6 +4,7 @@
 .fleet
 .idea
 .activation
+.s3key
 .env.aura
 __pycache__/
 *.py[cod]

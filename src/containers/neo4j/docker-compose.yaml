@@ -9,7 +9,7 @@ services:
     restart: always
     volumes:
       - /home/yc-user/coi-data:/data
-      - /home/yc-user/coi-import:/import
+      - /home/yc-user/coi-import:/var/lib/neo4j/import
     environment:
       - NEO4J_AUTH=neo4j/yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y
       - NEO4J_server_memory_heap_initial__size=3600m
