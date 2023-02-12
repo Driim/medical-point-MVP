@@ -82,7 +82,7 @@ def pytest_configure(config):
             "CREATE CONSTRAINT worker_id_unique IF NOT EXISTS FOR (w:Worker) REQUIRE w.id IS UNIQUE"
         )
         session.run(
-            "CREATE CONSTRAINT worker_license_unique IF NOT EXISTS FOR (w:Worker) REQUIRE (w.drivers_license, w.organization_unit_id, w.active, w.deleted) IS UNIQUE"
+            "CREATE CONSTRAINT worker_license_unique IF NOT EXISTS FOR (w:Worker) REQUIRE (w.drivers_license, w.organization_unit_id, w.active) IS UNIQUE"
         )
 
 

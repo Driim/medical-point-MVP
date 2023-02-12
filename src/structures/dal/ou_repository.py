@@ -196,3 +196,18 @@ class OrganizationUnitsRepository:
             )  # noqa
         ).single()
         return result["path_ids"]
+
+    async def is_in_active_tree(self, organization_unit: str, root_ou: str) -> bool:
+        query = "MATCH (o:OrganizationUnit {id: $organization_unit, active: true})"
+        query += "-[:CHILD_OF*0..10]->(p:OrganizationUnit {active: true})"
+        query += "-[:CHILD_OF*0..10]->(root:RootOrganizationUnit)"
+        query += " RETURN collect(p.id) as path_ids"
+
+        result = await (
+            await self.tx.run(
+                query,
+                organization_unit=organization_unit,
+                root_ou=root_ou,
+            )  # noqa
+        ).single()
+        return True if len(result["path_ids"]) > 0 else False

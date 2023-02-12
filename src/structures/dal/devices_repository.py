@@ -183,3 +183,7 @@ class DevicesRepository:
             return True
 
         return False
+
+    async def org_have_agreement(self, device_id: str, worker_id: str) -> bool:
+        # TODO: implement
+        return False

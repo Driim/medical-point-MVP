@@ -83,11 +83,24 @@ class DeviceService:
 
     async def _base_to_device(self, base: DeviceBase) -> Device:
         ou = await self._outlet_repo.get_by_id(base.outlet_id)
+
         ou_path = await self._org_unit_repo.path_to_organization_unit(
             ou.organization_unit_id,
             self._request.app.state.ROOT_OU,
         )
-        return Device(materialized_path=ou_path, **base.dict())
+
+        is_active_tree = False
+        if base.active is True:
+            is_active_tree = await self._org_unit_repo.is_in_active_tree(
+                ou.organization_unit_id,
+                self._request.app.state.ROOT_OU,
+            )
+
+        return Device(
+            is_active_tree=base.active and is_active_tree,
+            materialized_path=ou_path,
+            **base.dict()
+        )
 
     async def create(self, dto: DeviceCreateDto, user_id: str) -> Device:
         if not await self._user_service.have_write_access_by_outlet(
@@ -187,10 +200,12 @@ class DeviceService:
         return await self._base_to_device(base)
 
     async def can_take_exam_on_device(self, device_id: str, worker_id: str):
-        if not await self._repository.can_take_exam_on_device(device_id, worker_id):
-            raise DeviceExamAccessException(worker_id, device_id)
+        can_take_exam = await self._repository.can_take_exam_on_device(device_id, worker_id)
+        if not can_take_exam:
+            can_take_exam = await self._repository.org_have_agreement(device_id, worker_id)
 
-        # TODO: worker OU and device OU can have agreement, check it
+        if not can_take_exam:
+            raise DeviceExamAccessException(worker_id, device_id)
 
         base_device = await self._get_by_id(device_id)
         device = await self._base_to_device(base_device)
@@ -202,6 +217,18 @@ class DeviceService:
             base_worker.organization_unit_id,
             self._request.app.state.ROOT_OU,
         )
-        worker = Worker(materialized_path=ou_path, **base_worker.dict())
+
+        is_active_tree = False
+        if base_worker.active is True:
+            is_active_tree = await self._org_unit_repo.is_in_active_tree(
+                base_worker.organization_unit_id,
+                self._request.app.state.ROOT_OU,
+            )
+
+        worker = Worker(
+            is_active_tree=base_worker.active and is_active_tree,
+            materialized_path=ou_path,
+            **base_worker.dict(),
+        )
 
         return DeviceExamForWorker(worker=worker, device=device)

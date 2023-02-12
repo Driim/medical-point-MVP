@@ -18,6 +18,7 @@ class OrganizationUnitBase(OrganizationUnitShort):
 
 class OrganizationUnit(OrganizationUnitBase):
     materialized_path: list[str]
+    is_active_tree: bool
 
 
 class OrganizationUnitCreateDto(BaseModel):

@@ -42,7 +42,17 @@ class OrganizationUnitService:
             self.request.app.state.ROOT_OU,
         )
 
-        return OrganizationUnit(materialized_path=ou_path, **ou.dict())
+        if ou.active is True:
+            is_active_tree = await self.repository.is_in_active_tree(ou.id, self.request.app.state.ROOT_OU)
+        else:
+            # is OU is not active, we don't check tree
+            is_active_tree = False
+
+        return OrganizationUnit(
+            is_active_tree=ou.active and is_active_tree,
+            materialized_path=ou_path,
+            **ou.dict()
+        )
 
     async def _get_by_id(self, id: str) -> OrganizationUnitBase:
         ou = await self.repository.get_by_id(id)

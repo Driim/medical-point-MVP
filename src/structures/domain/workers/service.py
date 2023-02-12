@@ -80,7 +80,19 @@ class WorkerService:
             base.organization_unit_id,
             self._request.app.state.ROOT_OU,
         )
-        return Worker(materialized_path=ou_path, **base.dict())
+
+        is_active_tree = False
+        if base.active is True:
+            is_active_tree = await self._org_unit_repo.is_in_active_tree(
+                base.organization_unit_id,
+                self._request.app.state.ROOT_OU,
+            )
+
+        return Worker(
+            is_active_tree=base.active and is_active_tree,
+            materialized_path=ou_path,
+            **base.dict(),
+        )
 
     async def create(self, dto: WorkerCreateDto, user_id: str) -> Worker:
         if not await self._user_service.have_write_access(

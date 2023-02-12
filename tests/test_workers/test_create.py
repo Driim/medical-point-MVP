@@ -41,7 +41,7 @@ class TestWorkerCreate:
         assert result.status_code == 201
 
     @pytest.mark.asyncio
-    async def test_you_can_create_two_workers_with_same_driver_license_in_ou(
+    async def test_you_can_not_create_two_workers_with_same_driver_license_in_ou(
         self, client: TestClient, user_id_with_child_access: str, child_ou: str
     ):
         dto = WorkerCreateDto(

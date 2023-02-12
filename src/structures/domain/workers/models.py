@@ -14,6 +14,7 @@ class WorkerBase(BaseModel):
 
 class Worker(WorkerBase):
     materialized_path: list[str]
+    is_active_tree: bool
 
 
 class WorkerCreateDto(BaseModel):

@@ -27,14 +27,14 @@ def initialize_application(config: Configuration) -> FastAPI:
         version="0.1",
     )
 
-    uptrace.configure_opentelemetry(
-        # Copy DSN here or use UPTRACE_DSN env var.
-        dsn=config.uptrace_dsn,
-        service_name="Org Structures",
-        service_version="1.0.0",
-    )
+    # uptrace.configure_opentelemetry(
+    #     # Copy DSN here or use UPTRACE_DSN env var.
+    #     dsn=config.uptrace_dsn,
+    #     service_name="Org Structures",
+    #     service_version="1.0.0",
+    # )
 
-    FastAPIInstrumentor.instrument_app(application)
+    # FastAPIInstrumentor.instrument_app(application)
 
     application.state.ROOT_OU = config.root_ou
 

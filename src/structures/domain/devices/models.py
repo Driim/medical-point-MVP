@@ -13,6 +13,7 @@ class DeviceBase(BaseModel):
 
 class Device(DeviceBase):
     materialized_path: list[str]
+    is_active_tree: bool
 
 
 class DeviceCreateDto(BaseModel):
