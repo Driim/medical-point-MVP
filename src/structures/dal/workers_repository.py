@@ -90,6 +90,10 @@ class WorkersRepository:
         pagination: PaginationQueryParams,
     ) -> WorkerPaginatedDto:
         params = transform_to_dict(dto)
+
+        if "child_of_organization_unit" in params:
+            del params["child_of_organization_unit"]
+
         lines = []
         if params:
             for key in params:

@@ -30,7 +30,7 @@ class WorkerUpdateDto(BaseModel):
 
 
 class WorkerFindDto(BaseModel):
-    child_of: str | None
+    child_of_organization_unit: str | None
     active: bool | None
 
 
