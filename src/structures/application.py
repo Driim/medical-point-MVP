@@ -1,6 +1,5 @@
-import uptrace
+# import uptrace
 from fastapi import FastAPI
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from src.common.context import initialize_context_middleware
 from src.common.health_checks import register_health_checks
@@ -14,6 +13,8 @@ from src.structures.controllers.organization_units import (
 from src.structures.controllers.outlets import register_outlets_router
 from src.structures.controllers.users import register_users_router
 from src.structures.controllers.workers import register_workers_router
+
+# from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 
 def mock_health_check() -> bool:

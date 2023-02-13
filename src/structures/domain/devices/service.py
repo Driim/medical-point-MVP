@@ -99,7 +99,7 @@ class DeviceService:
         return Device(
             is_active_tree=base.active and is_active_tree,
             materialized_path=ou_path,
-            **base.dict()
+            **base.dict(),
         )
 
     async def create(self, dto: DeviceCreateDto, user_id: str) -> Device:
@@ -200,9 +200,13 @@ class DeviceService:
         return await self._base_to_device(base)
 
     async def can_take_exam_on_device(self, device_id: str, worker_id: str):
-        can_take_exam = await self._repository.can_take_exam_on_device(device_id, worker_id)
+        can_take_exam = await self._repository.can_take_exam_on_device(
+            device_id, worker_id
+        )
         if not can_take_exam:
-            can_take_exam = await self._repository.org_have_agreement(device_id, worker_id)
+            can_take_exam = await self._repository.org_have_agreement(
+                device_id, worker_id
+            )
 
         if not can_take_exam:
             raise DeviceExamAccessException(worker_id, device_id)

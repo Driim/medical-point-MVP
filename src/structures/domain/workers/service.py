@@ -138,7 +138,9 @@ class WorkerService:
     ) -> WorkerPaginatedDto:
         available_ou = None
         if dto.child_of_organization_unit:
-            if await self._user_service.have_read_access(user_id, dto.child_of_organization_unit):
+            if await self._user_service.have_read_access(
+                user_id, dto.child_of_organization_unit
+            ):
                 available_ou = [dto.child_of_organization_unit]
             else:
                 raise ReadAccessException(user_id, dto.child_of_organization_unit)
