@@ -17,7 +17,7 @@ pandora:
           ssl: false
         ammo:
           type: uri
-          file: ammos/ammo.txt
+          file: ammos/ammo-post.txt
         result:
           type: phout
           destination: ./phout.log

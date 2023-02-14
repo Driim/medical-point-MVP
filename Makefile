@@ -20,6 +20,9 @@ run-structures-dev:
 run-generate-import:
 	@(export PYTHONPATH="${PYTHONPATH}:$(pwd)" && poetry run python src/imports/build_import_files.py)
 
+run-generate-post-ammo:
+	@(export PYTHONPATH="${PYTHONPATH}:$(pwd)" && poetry run python src/imports/ammo_generator.py > ammo.txt)
+
 build:
 	docker build -f src/containers/structures/Dockerfile -t cr.yandex/crpqf6q24glns01tar7l/org-structures:latest .
 
