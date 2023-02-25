@@ -9,3 +9,5 @@
 __pycache__/
 *.py[cod]
 *$py.class
+ammo-post.txt
+inserts.sql

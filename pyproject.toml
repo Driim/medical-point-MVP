@@ -17,6 +17,7 @@ gunicorn = "^20.1.0"
 opentelemetry-instrumentation-fastapi = "^0.36b0"
 opentelemetry-instrumentation-requests = "^0.36b0"
 uptrace = "^1.15.0"
+httpx = "^0.23.3"
 
 
 [tool.poetry.group.dev.dependencies]

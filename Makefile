@@ -17,6 +17,9 @@ run-structures:
 run-structures-dev:
 	@(export $(shell cat src/structures/.env) && poetry run python -m uvicorn src.structures.main:app --reload)
 
+run-inspections-dev:
+	@(export $(shell cat src/inspections/.env) && poetry run python -m uvicorn src.inspections.main:app --reload)
+
 run-generate-import:
 	@(export PYTHONPATH="${PYTHONPATH}:$(pwd)" && poetry run python src/imports/build_import_files.py)
 
