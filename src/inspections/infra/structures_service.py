@@ -1,8 +1,12 @@
+import logging
+
 import httpx
 from fastapi import Depends, HTTPException, Request
 
 from src.common.context.context import get_request
 from src.structures.domain.devices.models import DeviceExamForWorker
+
+logger = logging.getLogger(__name__)
 
 
 class StructuresService:
@@ -24,3 +28,15 @@ class StructuresService:
                 return DeviceExamForWorker(**result.json())
             else:
                 raise HTTPException(status_code=403)
+
+    async def get_available_ou_for_user(self, user_id: str) -> list[str]:
+        async with httpx.AsyncClient() as client:
+            result = await client.get(
+                f"http://{self._request.app.state.STRUCTURES_URL}/users/{user_id}",
+            )
+
+            if result.status_code == 200:
+                logger.debug(result.json())
+                return result.json()["read"]
+            else:
+                raise HTTPException(status_code=404)

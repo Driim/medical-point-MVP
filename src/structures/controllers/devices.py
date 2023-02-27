@@ -85,7 +85,6 @@ class DevicesController:
     async def change_outlet(self, device_id: str, new_outlet_id: str):
         return await self.service.change_outlet(device_id, new_outlet_id, self.user_id)
 
-    @Transactional()
     @router.get(
         "/devices/{device_id}/exam/{worker_id}", response_model=DeviceExamForWorker
     )

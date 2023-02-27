@@ -126,7 +126,7 @@ CREATE TABLE inspections.materialized_inspections_with_results
     `result_data` String
 )
 ENGINE=MergeTree
-PRIMARY KEY (`worker_id`, `inspection_end_time`);
+PRIMARY KEY (`inspection_end_time`, `worker_id`);
 
 
 CREATE MATERIALIZED VIEW inspections.materialize_inspections_with_results TO inspections.materialized_inspections_with_results

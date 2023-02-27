@@ -1,6 +1,5 @@
 # flake8: noqa: S311
 # -*- coding: utf-8 -*-
-import json
 from datetime import datetime, timedelta
 from random import getrandbits, random, randrange
 from uuid import uuid4
@@ -9,15 +8,21 @@ from faker import Faker
 from faker.providers import person
 from fastapi import Depends
 
-from src.inspections.domain.infra.event_producer_sql import EventProducerSql
-from src.inspections.domain.infra.structures_service import StructuresService
+from src.common.models import PaginationQueryParams
+from src.inspections.dal.inspections_repository import InspectionsRepository
 from src.inspections.domain.inspections.models import (
     Event,
     EventBase,
     EventType,
+    Inspection,
     InspectionFailReason,
+    InspectionsFindBByWorkerDto,
+    InspectionsFindDto,
+    InspectionsPaginatedDto,
     Measurements,
 )
+from src.inspections.infra.event_producer_sql import EventProducerSql
+from src.inspections.infra.structures_service import StructuresService
 
 fake_person = Faker()
 fake_person.add_provider(person)
@@ -28,9 +33,32 @@ class InspectionService:
         self,
         structures: StructuresService = Depends(StructuresService),
         producer: EventProducerSql = Depends(EventProducerSql),
+        inspections_repo: InspectionsRepository = Depends(InspectionsRepository),
     ):
         self._structures = structures
         self._producer = producer
+        self._inspections_repo = inspections_repo
+
+    async def find_inspections(
+        self, dto: InspectionsFindDto, pagination: PaginationQueryParams, user_id: str
+    ) -> InspectionsPaginatedDto:
+        # 1. Get from structures available to user OU ID's
+        available_ou = await self._structures.get_available_ou_for_user(user_id)
+
+        if dto.ou_id:
+            # TODO: we should call structures to check if user have access to this company
+            available_ou = [dto.ou_id]
+            dto.ou_id = None
+
+        # 2. Request data from clickhouse
+        return await self._inspections_repo.find_inspections(
+            dto, available_ou, pagination
+        )
+
+    async def find_inspections_by_worker(
+        self, dto: InspectionsFindBByWorkerDto
+    ) -> list[Inspection]:
+        return await self._inspections_repo.find_inspections_by_worker(dto)
 
     async def generate_inspection(self, device_id: str, worker_id: str) -> None:
         response = await self._structures.worker_can_take_exam(device_id, worker_id)

@@ -3,6 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from src.common.models import Pagination
 from src.structures.domain.devices.models import Device
 from src.structures.domain.workers.models import Worker
 
@@ -67,3 +68,32 @@ class Event(BaseModel):
     event_type: EventType
     event_data: dict
     datetime: datetime
+
+
+class InspectionsFindBByWorkerDto(BaseModel):
+    worker_id: str | None
+    from_datetime: datetime | None
+
+
+class InspectionsFindDto(BaseModel):
+    worker_id: str | None
+    from_datetime: datetime | None
+    to_datetime: datetime | None
+    ou_id: str | None
+    device_id: str | None
+
+
+class Inspection(BaseModel):
+    id: str
+    worker_id: str
+    device_id: str
+    inspection_start: datetime
+    inspection_end: datetime
+    inspection_data: list
+    result: str
+    result_data: object
+
+
+class InspectionsPaginatedDto(BaseModel):
+    pagination: Pagination
+    data: list[Inspection]
