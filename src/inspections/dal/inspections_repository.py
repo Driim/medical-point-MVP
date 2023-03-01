@@ -23,7 +23,7 @@ Base = declarative_base()
 
 
 class InspectionModel(Base):
-    __tablename__ = "materialized_inspections_with_results"
+    __tablename__ = "materialized_inspections"
     # eager_defaults is required in order to access columns
     # with server defaults or SQL expression defaults,
     # after a flush without triggering an expired load
@@ -34,12 +34,12 @@ class InspectionModel(Base):
     worker_path = Column(ARRAY(UUID))
     device_id = Column(UUID)
     device_path = Column(ARRAY(UUID))
-    inspection_start_time = Column(DateTime)
-    inspection_end_time = Column(DateTime)
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
     data = Column(ARRAY(String))
-    result_time = Column(DateTime)
-    result = Column(String)
-    result_data = Column(String)
+    # result_time = Column(DateTime)
+    # result = Column(String)
+    # result_data = Column(String)
 
 
 class InspectionsRepository:
@@ -144,15 +144,15 @@ class InspectionsRepository:
         data = []
 
         for d in model.data:
-            data.append(json.loads(d))
+            data.append(json.loads(d.replace("'", '"')))
 
         return Inspection(
             id=str(model.inspection_id),
             worker_id=str(model.worker_id),
             device_id=str(model.device_id),
-            inspection_start=model.inspection_start_time,
-            inspection_end=model.inspection_end_time,
+            inspection_start=model.start_time,
+            inspection_end=model.end_time,
             inspection_data=data,
-            result=model.result,
-            result_data=json.loads(model.result_data),
+            # result=model.result,
+            # result_data=json.loads(model.result_data),
         )

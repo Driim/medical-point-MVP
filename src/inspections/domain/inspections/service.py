@@ -1,5 +1,6 @@
 # flake8: noqa: S311
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime, timedelta
 from random import getrandbits, random, randrange
 from uuid import uuid4
@@ -13,6 +14,7 @@ from src.inspections.dal.inspections_repository import InspectionsRepository
 from src.inspections.domain.inspections.models import (
     Event,
     EventBase,
+    EventData,
     EventType,
     Inspection,
     InspectionFailReason,
@@ -21,6 +23,7 @@ from src.inspections.domain.inspections.models import (
     InspectionsPaginatedDto,
     Measurements,
 )
+from src.inspections.infra.event_producer_kafka import EventProducerKafka
 from src.inspections.infra.event_producer_sql import EventProducerSql
 from src.inspections.infra.structures_service import StructuresService
 
@@ -32,7 +35,7 @@ class InspectionService:
     def __init__(
         self,
         structures: StructuresService = Depends(StructuresService),
-        producer: EventProducerSql = Depends(EventProducerSql),
+        producer: EventProducerKafka = Depends(EventProducerKafka),
         inspections_repo: InspectionsRepository = Depends(InspectionsRepository),
     ):
         self._structures = structures
@@ -109,8 +112,10 @@ class InspectionService:
             device_id=str(base.device.id),
             event_type=EventType.START,
             datetime=base.datetime + timedelta(seconds=1),
-            # pydantic json works strange
-            event_data={"worker": base.worker.dict(), "device": base.device.dict()},
+            # we need it as string because we can not transform it kafka engine later
+            event_data=json.dumps(
+                {"worker": base.worker.dict(), "device": base.device.dict()}
+            ).replace('"', "'"),
         )
 
     def _get_exams(self, base: EventBase, amount: int) -> list[Event]:
@@ -129,7 +134,9 @@ class InspectionService:
                     device_id=str(base.device.id),
                     event_type=EventType.DATA,
                     datetime=time,
-                    event_data={"measurement": str(measurement), "data": data},
+                    event_data=json.dumps(
+                        {"measurement": str(measurement), "data": data}
+                    ).replace('"', "'"),
                 )
             )
 
@@ -172,7 +179,7 @@ class InspectionService:
             device_id=str(base.device.id),
             event_type=EventType.END,
             datetime=base.datetime + timedelta(seconds=randrange(5, 45)),
-            event_data=dict(),
+            event_data=json.dumps(dict()).replace('"', "'"),
         )
 
     @staticmethod
@@ -190,5 +197,7 @@ class InspectionService:
             device_id=str(base.device.id),
             event_type=EventType.RESULT,
             datetime=base.datetime + timedelta(minutes=randrange(2, 25)),
-            event_data={"result": "PASS" if result else "FAILED", "data": data},
+            event_data=json.dumps(
+                {"result": "PASS" if result else "FAILED", "data": data}
+            ).replace('"', "'"),
         )

@@ -61,13 +61,22 @@ class EventBase(BaseModel):
     datetime: datetime
 
 
+class EventData(dict):
+    pass
+
+
 class Event(BaseModel):
     inspection_id: str
     worker_id: str
     device_id: str
     event_type: EventType
-    event_data: dict
+    event_data: str
     datetime: datetime
+
+    class Config:
+        json_encoders = {
+            EventType: lambda v: str(v),
+        }
 
 
 class InspectionsFindBByWorkerDto(BaseModel):
@@ -90,8 +99,8 @@ class Inspection(BaseModel):
     inspection_start: datetime
     inspection_end: datetime
     inspection_data: list
-    result: str
-    result_data: object
+    # result: str
+    # result_data: object
 
 
 class InspectionsPaginatedDto(BaseModel):

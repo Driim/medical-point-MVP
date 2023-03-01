@@ -29,7 +29,7 @@ class Neo4JSessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
         request: Request,
-        next: RequestResponseEndpoint,
+        call_next: RequestResponseEndpoint,
     ) -> Response:
         # unfortunately we can not decide here should we use READ or WRITE connection
         # to do that we should put in context driver and decide it inside
@@ -39,7 +39,7 @@ class Neo4JSessionMiddleware(BaseHTTPMiddleware):
         context[self.KEY] = session
 
         try:
-            response = await next(request)
+            response = await call_next(request)
         finally:
             del context[self.KEY]
             await session.close()

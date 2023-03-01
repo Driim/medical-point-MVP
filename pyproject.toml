@@ -20,6 +20,7 @@ uptrace = "^1.15.0"
 httpx = "^0.23.3"
 sqlalchemy = "^1.4.46"
 clickhouse-sqlalchemy = {git = "https://github.com/xzkostyan/clickhouse-sqlalchemy"}
+aiokafka = "^0.8.0"
 
 
 [tool.poetry.group.dev.dependencies]
