@@ -1,4 +1,4 @@
-
+CREATE DATABASE inspections;
 
 CREATE TABLE inspections.kafka_stream
 (
@@ -16,17 +16,6 @@ SETTINGS
     kafka_group_name = 'sample_group',
     kafka_format = 'JSONEachRow';
 
- CREATE MATERIALIZED VIEW inspections.materialize_kafka_events TO inspections.event_log
- AS SELECT
- 	inspection_id,
- 	worker_id,
- 	device_id,
- 	event_type,
- 	event_data as `payload`,
- 	`datetime`
-FROM inspections.kafka_stream
-
-
 CREATE TABLE inspections.event_log
 (
     `inspection_id` UUID,
@@ -39,6 +28,17 @@ CREATE TABLE inspections.event_log
 ENGINE=MergeTree
 PRIMARY KEY (`inspection_id`, `datetime`);
 
+ CREATE MATERIALIZED VIEW inspections.materialize_kafka_events TO inspections.event_log
+ AS SELECT
+ 	inspection_id,
+ 	worker_id,
+ 	device_id,
+ 	event_type,
+ 	event_data as `payload`,
+ 	`datetime`
+FROM inspections.kafka_stream
+
+
 CREATE TABLE inspections.materialized_start_events
 (
 	`inspection_id` UUID,
@@ -49,12 +49,7 @@ CREATE TABLE inspections.materialized_start_events
     `start_time` DateTime64
 )
 ENGINE=MergeTree
-PRIMARY KEY (`inspection_id`, `start_time`)
-;
-
-PARTITION BY toYYYYMMDD(`start_time`)
-TTL toYYYYMMDD(`start_time`) + INTERVAL 1 DAY DELETE;
-
+PRIMARY KEY (`inspection_id`, `start_time`);
 
 CREATE MATERIALIZED VIEW inspections.materialize_start_event TO inspections.materialized_start_events
 AS SELECT
@@ -67,7 +62,6 @@ AS SELECT
 FROM inspections.event_log WHERE event_type = 'START';
 
 
-/* TODO: add TTL */
 CREATE TABLE inspections.materialized_end_events
 (
 	`inspection_id` UUID,
@@ -92,7 +86,12 @@ CREATE TABLE inspections.materialized_inspections
     `device_path` Array(UUID),
     `start_time` DateTime64,
     `end_time` DateTime64,
-    `data` Array(String)
+    `data` Array(String),
+    PROJECTION search_inspections_projection
+    (
+    	SELECT *
+    	ORDER BY (`worker_id`, `end_time`)
+    )
 )
 ENGINE=MergeTree
 PRIMARY KEY (`inspection_id`, `end_time`); /* Do we need worker ID or something else here? */
@@ -183,11 +182,8 @@ AS SELECT
 FROM inspections.materialized_result_events mre
 INNER JOIN (
 	SELECT *
-	FROM materialized_inspections mi
+	FROM inspections.materialized_inspections mi
 	WHERE mi.inspection_id IN (SELECT mre.inspection_id  FROM materialized_result_events mre)
 ) as ins
 ON ins.inspection_id = mre.inspection_id;
 
-
-SET stream_like_engine_allow_direct_select = 1;
-select * from inspections.kafka_stream ks;

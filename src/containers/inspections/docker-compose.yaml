@@ -1,0 +1,18 @@
+version: '3.4'
+services:
+  app2:
+    container_name: service
+    image: "cr.yandex/crpqf6q24glns01tar7l/inspections:latest"
+    ports:
+      - "80:80"
+    restart: always
+    environment:
+      - LOG_LEVEL=INFO
+      - LOG_TYPE=PLAIN
+      - CLICKHOUSE_URL=clickhouse+asynch://admin:yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y@rc1a-j9n4mb6stdu4opft.mdb.yandexcloud.net:9440/inspections?secure=True&verify=True&ca_certs=/app/YandexCA.crt
+      - STRUCTURES_URL=51.250.46.245
+      - KAFKA_CAFILE=/app/YandexCA.crt
+      - KAFKA_USERNAME=yc-user
+      - KAFKA_PASSWORD=yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y
+      - KAFKA_INSTANCE=rc1a-g31oe8fl2r0n9vmc.mdb.yandexcloud.net:9091
+      - KAFKA_TOPIC=inspections_events

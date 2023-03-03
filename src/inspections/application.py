@@ -32,8 +32,8 @@ def initialize_application(config: Configuration) -> FastAPI:
     initialize_database_middleware(application, config.clickhouse, health_checks)
     initialize_context_middleware(application)
 
-    register_generator_router(application, "/v1")
-    register_inspections_router(application, "/v1")
+    register_generator_router(application, "")
+    register_inspections_router(application, "")
 
     register_health_checks(application, health_checks)
 

@@ -26,8 +26,17 @@ run-generate-import:
 run-generate-post-ammo:
 	@(export PYTHONPATH="${PYTHONPATH}:$(pwd)" && poetry run python src/imports/ammo_generator.py > ammo.txt)
 
-build:
+build-structures:
 	docker build -f src/containers/structures/Dockerfile -t cr.yandex/crpqf6q24glns01tar7l/org-structures:latest .
 
-push:
+push-structures:
 	docker push cr.yandex/crpqf6q24glns01tar7l/org-structures:latest
+
+build-inspections:
+	docker build -f src/containers/inspections/Dockerfile -t cr.yandex/crpqf6q24glns01tar7l/inspections:latest .
+
+push-inspections:
+	docker push cr.yandex/crpqf6q24glns01tar7l/inspections:latest
+
+
+# KAFKA_CAFILE="/Users/dmitriyfalko/work/kafka-ca.crt"

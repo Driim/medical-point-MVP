@@ -1,6 +1,6 @@
+# flake8: noqa: S311
 import json
 import logging
-import uuid
 
 from clickhouse_sqlalchemy.types import UUID
 from fastapi import Depends, HTTPException
@@ -59,13 +59,11 @@ class InspectionsRepository:
 
         if dto.from_datetime:
             data_select = data_select.where(
-                InspectionModel.inspection_end_time >= dto.from_datetime
+                InspectionModel.end_time >= dto.from_datetime
             )
 
         if dto.to_datetime:
-            data_select = data_select.where(
-                InspectionModel.inspection_end_time <= dto.to_datetime
-            )
+            data_select = data_select.where(InspectionModel.end_time <= dto.to_datetime)
 
         if dto.device_id:
             data_select = data_select.where(InspectionModel.device_id == dto.device_id)
@@ -74,7 +72,7 @@ class InspectionsRepository:
         available_ou_query = ",".join(available_ou_uuids)
         data_select = data_select.where(
             text(
-                f"hasAny(materialized_inspections_with_results.worker_path, [{available_ou_query}])"
+                f"hasAny(materialized_inspections.worker_path, [{available_ou_query}])"
             )
         )
 
@@ -122,7 +120,7 @@ class InspectionsRepository:
 
         if limit is None:
             data_select = data_select.where(
-                InspectionModel.inspection_end_time >= uuid.UUID(dto.from_datetime)
+                InspectionModel.end_time >= dto.from_datetime
             )
 
         if limit is not None:
