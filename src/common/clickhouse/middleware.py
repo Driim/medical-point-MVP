@@ -31,6 +31,7 @@ class DatabaseSessionMiddleware(BaseHTTPMiddleware):
             echo=config.echo,
             echo_pool=config.echo,
             future=True,
+            pool_size=config.pool_size,
         )
         self._session_factory = async_scoped_session(
             orm.sessionmaker(
