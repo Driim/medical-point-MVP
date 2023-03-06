@@ -98,7 +98,7 @@ class Inspection(BaseModel):
     device_id: str
     inspection_start: datetime
     inspection_end: datetime
-    inspection_data: list
+    inspection_data: str
     # result: str
     # result_data: object
 

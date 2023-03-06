@@ -23,7 +23,7 @@ Base = declarative_base()
 
 
 class InspectionModel(Base):
-    __tablename__ = "materialized_inspections"
+    __tablename__ = "materialized_inspections_distributed"
     # eager_defaults is required in order to access columns
     # with server defaults or SQL expression defaults,
     # after a flush without triggering an expired load
@@ -36,7 +36,7 @@ class InspectionModel(Base):
     device_path = Column(ARRAY(UUID))
     start_time = Column(DateTime)
     end_time = Column(DateTime)
-    data = Column(ARRAY(String))
+    data = Column(String)
     # result_time = Column(DateTime)
     # result = Column(String)
     # result_data = Column(String)
@@ -72,7 +72,7 @@ class InspectionsRepository:
         available_ou_query = ",".join(available_ou_uuids)
         data_select = data_select.where(
             text(
-                f"hasAny(materialized_inspections.worker_path, [{available_ou_query}])"
+                f"hasAny(materialized_inspections_distributed.worker_path, [{available_ou_query}])"
             )
         )
 
@@ -139,18 +139,13 @@ class InspectionsRepository:
 
     @staticmethod
     def model_to_inspection(model: InspectionModel) -> Inspection:
-        data = []
-
-        for d in model.data:
-            data.append(json.loads(d.replace("'", '"')))
-
         return Inspection(
             id=str(model.inspection_id),
             worker_id=str(model.worker_id),
             device_id=str(model.device_id),
             inspection_start=model.start_time,
             inspection_end=model.end_time,
-            inspection_data=data,
+            inspection_data=model.data,
             # result=model.result,
             # result_data=json.loads(model.result_data),
         )

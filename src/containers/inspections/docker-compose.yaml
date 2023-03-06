@@ -9,7 +9,8 @@ services:
     environment:
       - LOG_LEVEL=INFO
       - LOG_TYPE=PLAIN
-      - CLICKHOUSE_URL=clickhouse+asynch://admin:yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y@rc1a-j9n4mb6stdu4opft.mdb.yandexcloud.net:9440/inspections?secure=True&verify=True&ca_certs=/app/YandexCA.crt
+      - CLICKHOUSE_POOL_SIZE=20
+      - CLICKHOUSE_URL=clickhouse+asynch://admin:yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y@rc1a-drt37f754epuqrei.mdb.yandexcloud.net:9440/inspections?secure=True&verify=True&ca_certs=/app/YandexCA.crt
       - STRUCTURES_URL=51.250.46.245
       - KAFKA_CAFILE=/app/YandexCA.crt
       - KAFKA_USERNAME=yc-user
