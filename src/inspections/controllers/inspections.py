@@ -43,7 +43,7 @@ class InspectionsController:
         worker_id: str,
     ):
         from_datetime = None
-        if not get_bool_with_80_percent_chance_to_have_true():
+        if get_bool_with_80_percent_chance_to_have_true():
             from_datetime = datetime.today() - timedelta(days=1)
 
         dto = InspectionsFindBByWorkerDto(

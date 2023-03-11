@@ -23,7 +23,7 @@ Base = declarative_base()
 
 
 class InspectionModel(Base):
-    __tablename__ = "materialized_inspections_distributed"
+    __tablename__ = "inspections_distributed"
     # eager_defaults is required in order to access columns
     # with server defaults or SQL expression defaults,
     # after a flush without triggering an expired load
@@ -72,7 +72,7 @@ class InspectionsRepository:
         available_ou_query = ",".join(available_ou_uuids)
         data_select = data_select.where(
             text(
-                f"hasAny(materialized_inspections_distributed.worker_path, [{available_ou_query}])"
+                f"hasAny(inspections_distributed.worker_path, [{available_ou_query}])"
             )
         )
 
