@@ -1,83 +1,34 @@
-CREATE DATABASE inspections;
+CREATE DATABASE inspections ON CLUSTER '{cluster}';
 
-CREATE TABLE inspections.kafka_stream
+/* Создаем таблицу для хранения данных */
+CREATE TABLE inspections.inspections ON CLUSTER 'data-shards'
 (
     `inspection_id` UUID,
-    `worker_id` UUID,
-    `device_id` UUID,
-    `event_type` LowCardinality(String),
-    `event_data` String,
-    `datetime` DateTime64
-)
-ENGINE=Kafka
-SETTINGS
-    kafka_broker_list = 'rc1a-g31oe8fl2r0n9vmc.mdb.yandexcloud.net:9091',
-    kafka_topic_list = 'inspections_events',
-    kafka_group_name = 'sample_group',
-    kafka_format = 'JSONEachRow';
-
-CREATE TABLE inspections.event_log
-(
-    `inspection_id` UUID,
-    `worker_id` UUID,
-    `device_id` UUID,
-    `event_type` LowCardinality(String),
-    `payload` String,
-    `datetime` DateTime64
-)
-ENGINE=MergeTree
-PRIMARY KEY (`inspection_id`, `datetime`);
-
- CREATE MATERIALIZED VIEW inspections.materialize_kafka_events TO inspections.event_log
- AS SELECT
- 	inspection_id,
- 	worker_id,
- 	device_id,
- 	event_type,
- 	event_data as `payload`,
- 	`datetime`
-FROM inspections.kafka_stream
-
-
-CREATE TABLE inspections.materialized_start_events
-(
-	`inspection_id` UUID,
     `worker_id` UUID,
     `worker_path` Array(UUID),
     `device_id` UUID,
     `device_path` Array(UUID),
-    `start_time` DateTime64
+    `start_time` DateTime64,
+    `end_time` DateTime64,
+    `data` String,
+    PROJECTION search_inspections_projection
+    (
+        SELECT `end_time`, `worker_id`
+        ORDER BY (`worker_id`, `end_time`)
+    ),
+    PROJECTION search_by_date_and_path
+    (
+        SELECT `end_time`, `worker_path`
+        ORDER BY (`worker_path`, `end_time`)
+    )
 )
-ENGINE=MergeTree
-PRIMARY KEY (`inspection_id`, `start_time`);
+ENGINE=ReplicatedReplacingMergeTree('/tables/{shard}/inspections', '{replica}')
+PRIMARY KEY (`end_time`, `inspection_id`)
+ORDER BY (`end_time`, `inspection_id`)
+PARTITION BY toYYYYMM(`end_time`);
 
-CREATE MATERIALIZED VIEW inspections.materialize_start_event TO inspections.materialized_start_events
-AS SELECT
-	inspection_id,
-	worker_id,
-	JSONExtract(JSONExtract(replaceAll(payload, '\'', '"'), 'worker', 'String'), 'materialized_path', 'Array(UUID)') as worker_path,
-	device_id,
-	JSONExtract(JSONExtract(replaceAll(payload, '\'', '"'), 'device', 'String'), 'materialized_path', 'Array(UUID)') as device_path,
-	`datetime` as start_time
-FROM inspections.event_log WHERE event_type = 'START';
-
-
-CREATE TABLE inspections.materialized_end_events
-(
-	`inspection_id` UUID,
-    `end_time` DateTime64
-)
-ENGINE=MergeTree
-PRIMARY KEY (`inspection_id`);
-
-CREATE MATERIALIZED VIEW inspections.materialize_end_event TO inspections.materialized_end_events
-AS SELECT
-	inspection_id,
-	`datetime` as end_time
-FROM inspections.event_log WHERE event_type = 'END';
-
-
-CREATE TABLE inspections.materialized_inspections
+/* Создаем распреденную таблицу для доступа */
+CREATE TABLE inspections.inspections_distributed ON CLUSTER coordinators
 (
 	`inspection_id` UUID,
     `worker_id` UUID,
@@ -86,104 +37,109 @@ CREATE TABLE inspections.materialized_inspections
     `device_path` Array(UUID),
     `start_time` DateTime64,
     `end_time` DateTime64,
-    `data` Array(String),
-    PROJECTION search_inspections_projection
-    (
-    	SELECT *
-    	ORDER BY (`worker_id`, `end_time`)
-    )
+    `data` String
 )
-ENGINE=MergeTree
-PRIMARY KEY (`inspection_id`, `end_time`); /* Do we need worker ID or something else here? */
+ENGINE = Distributed('data-shards', inspections, inspections, xxHash64(`inspection_id`));
+/*
+ * используем xxHash64 потому что он самый быстрый(http://cyan4973.github.io/xxHash/),
+ * а нам просто нужно что бы записи с одинаковым inspections_id попадали на одну и ту же шарду,
+ * чтобы работало удаление повторов.
+ */
 
 
-CREATE MATERIALIZED VIEW inspections.materialize_inspection TO inspections.materialized_inspections
-AS SELECT
-	ee.inspection_id as `inspection_id`,
-	se.worker_id as `worker_id`,
-	se.worker_path as `worker_path`,
-	se.device_id as `device_id`,
-	se.device_path as `device_path`,
-	se.start_time as `start_time`,
-	ee.end_time as `end_time`,
-	d.`data` as `data`
-FROM inspections.materialized_end_events ee
-JOIN (
-	SELECT *
-	FROM inspections.materialized_start_events se
-	WHERE se.inspection_id IN (
-		SELECT ee.inspection_id FROM inspections.materialized_end_events ee
-	)
-) as se ON se.inspection_id = ee.inspection_id
-INNER JOIN (
-	SELECT el.inspection_id, groupArray(payload) as `data`
-	FROM inspections.event_log el
-	WHERE
-	el.inspection_id IN (SELECT ee.inspection_id FROM inspections.materialized_end_events ee)
-	AND
-		el.event_type = 'DATA'
-	GROUP BY el.inspection_id
-) as d ON d.inspection_id = ee.inspection_id
+/*
+ * Секция импорта данных
+ */
+ INSERT INTO inspections.inspections_distributed
+SELECT
+	`inspection_id`,
+    `worker_id`,
+    `worker_path`,
+    `device_id`,
+    `device_path`,
+    `start_time`,
+    `end_time`,
+    `data`
+FROM s3(
+	'https://storage.yandexcloud.net/dfalko-testing-files/materialized_inspections_80kk.csv.lz4',
+	'CSV',
+	'inspection_id UUID, worker_id UUID, worker_path Array(UUID), device_id UUID, device_path Array(UUID), start_time DateTime64, end_time DateTime64, data String'
+);
+
+
+INSERT INTO inspections.inspections_distributed
+SELECT
+	generateUUIDv4(`end_time`) as `inspection_id`,
+    `worker_id`,
+    `worker_path`,
+    `device_id`,
+    `device_path`,
+    `start_time` - INTERVAL 64 DAY,
+    `end_time` - INTERVAL 64 DAY,
+    `data`
+FROM s3(
+	'https://storage.yandexcloud.net/dfalko-testing-files/materialized_inspections_80kk.csv.lz4',
+	'CSV',
+	'inspection_id UUID, worker_id UUID, worker_path Array(UUID), device_id UUID, device_path Array(UUID), start_time DateTime64, end_time DateTime64, data String'
+);
+
+
+
+/*
+ *  Экспорт осмотров в S3
+ */
+INSERT INTO FUNCTION s3('https://storage.yandexcloud.net/dfalko-testing-files/materialized_inspections_30kk.csv.lz4', 'YCAJEcDZIBbF9i5zQIqVouyP3', 'YCN8M6V3rHLhrCdDC84znxgDhTHA5Tc7zXhEevUU', 'CSV')
+SELECT * FROM inspections.inspections_distributed LIMIT 30000000;
+
+
+INSERT INTO FUNCTION s3(
+	'https://storage.yandexcloud.net/dfalko-testing-files/inspections/inspections_{_partition_id}.csv',
+	'YCAJEcDZIBbF9i5zQIqVouyP3',
+	'YCN8M6V3rHLhrCdDC84znxgDhTHA5Tc7zXhEevUU',
+	'CSV'
+)
+PARTITION BY xxHash64(`worker_id`) % 10
+SELECT * FROM inspections.inspections_distributed LIMIT 30000000;
+
+
+/*
+ * Настройки
+ */
+ALTER USER admin SETTINGS max_threads = 1, use_uncompressed_cache = 1 ON CLUSTER '{cluster}';
+ALTER USER admin SETTINGS max_threads = 16, use_uncompressed_cache = 1 ON CLUSTER 'data-shards';
+
+SELECT *
+FROM system.settings
+WHERE name = 'max_threads' or name = 'use_uncompressed_cache';
+
+
+/*
+ * Словарь
+ */
+CREATE DICTIONARY inspections.workers_dictionary_file ON CLUSTER '{cluster}'
+(
+    `id` UUID,
+    `fio` String,
+    `drivers_license` String,
+    `active` Boolean,
+    `organization_unit_id` UUID
+)
+PRIMARY KEY `id`
+SOURCE(HTTP(url 'https://storage.yandexcloud.net/dfalko-testing-files/workers.csv' format 'CSV'))
+LIFETIME(MIN 0 MAX 0)
+LAYOUT(COMPLEX_KEY_HASHED())
 ;
 
-
-CREATE TABLE inspections.materialized_result_events
-(
-	`inspection_id` UUID,
-	`result_time` DateTime64,
-	`result` LowCardinality(String),
-	`result_data` String
-)
-ENGINE=MergeTree
-PRIMARY KEY `inspection_id`;
-
-CREATE MATERIALIZED VIEW inspections.materialize_result TO inspections.materialized_result_events
-AS SELECT
+INSERT INTO FUNCTION s3('https://storage.yandexcloud.net/dfalko-testing-files/inspections_month_fio.csv', 'YCAJEcDZIBbF9i5zQIqVouyP3', 'YCN8M6V3rHLhrCdDC84znxgDhTHA5Tc7zXhEevUU', 'CSV')
+select
 	inspection_id,
-	`datetime` as `result_time`,
-	JSONExtract(replaceAll(payload, '\'', '"'), 'result', 'String') as `result`,
-	JSONExtract(replaceAll(payload, '\'', '"'), 'data', 'String') as `result_data`
-FROM inspections.event_log
-WHERE event_type = 'RESULT';
-
-
-
-CREATE TABLE inspections.materialized_inspections_with_results
-(
-	`inspection_id` UUID,
-    `worker_id` UUID,
-    `worker_path` Array(UUID),
-    `device_id` UUID,
-    `device_path` Array(UUID),
-    `inspection_start_time` DateTime64,
-    `inspection_end_time` DateTime64,
-    `data` Array(String),
-    `result_time` DateTime64,
-    `result` LowCardinality(String),
-    `result_data` String
-)
-ENGINE=MergeTree
-PRIMARY KEY (`inspection_end_time`, `worker_id`);
-
-
-CREATE MATERIALIZED VIEW inspections.materialize_inspections_with_results TO inspections.materialized_inspections_with_results
-AS SELECT
-	inspection_id,
-	ins.`worker_id`,
-	ins.`worker_path`,
-	ins.`device_id`,
-	ins.`device_path`,
-	ins.`start_time` as `inspection_start_time`,
-	ins.`end_time` as `inspection_end_time`,
-	ins.`data` as `data`,
-	result_time,
-	`result`,
-	result_data
-FROM inspections.materialized_result_events mre
-INNER JOIN (
-	SELECT *
-	FROM inspections.materialized_inspections mi
-	WHERE mi.inspection_id IN (SELECT mre.inspection_id  FROM materialized_result_events mre)
-) as ins
-ON ins.inspection_id = mre.inspection_id;
-
+	worker_id,
+	worker_path,
+	device_id,
+	device_path,
+	start_time,
+	end_time,
+	data,
+	dictGetOrNull('inspections.workers_dictionary_file', 'fio', tuple(worker_id))
+from inspections.inspections_distributed
+LIMIT 30000000;
