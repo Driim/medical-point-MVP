@@ -143,3 +143,23 @@ select
 	dictGetOrNull('inspections.workers_dictionary_file', 'fio', tuple(worker_id))
 from inspections.inspections_distributed
 LIMIT 30000000;
+
+
+SELECT
+	worker_id as id,
+	groupArray(10)(
+		array(
+			toString(inspection_id),
+			toString(worker_id),
+			toString(worker_path),
+			toString(device_id),
+			toString(device_path),
+			toString(start_time),
+			toString(end_time),
+			data
+		)
+	)
+FROM inspections.inspections
+GROUP BY worker_id
+LIMIT 10
+;
