@@ -13,7 +13,7 @@ from src.structures.domain.users.models import (
 )
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Users"], route_class=TransactionalRouter)
+router = APIRouter(tags=["Users"])
 
 
 @cbv(router)
@@ -24,32 +24,26 @@ class UsersController:
     async def get_user_by_id(self, user_id: str):
         return await self.service.get_user_by_id(user_id)
 
-    @Transactional()
     @router.post("/users", response_model=User)
     async def create_user(self, dto: UserCreateDto):
         return await self.service.create(dto)
 
-    @Transactional()
     @router.delete("/users/{user_id}")
     async def delete_user(self, user_id: str):
         return await self.service.delete(user_id)
 
-    @Transactional()
     @router.put("/users/{user_id}/read", response_model=User)
     async def add_read_access(self, user_id: str, dto: UserAddReadAccessDto):
         return await self.service.add_read_access(user_id, dto.read)
 
-    @Transactional()
     @router.put("/users/{user_id}/write", response_model=User)
     async def add_write_access(self, user_id: str, dto: UserAddWriteAccessDto):
         return await self.service.add_write_access(user_id, dto.write)
 
-    @Transactional()
     @router.delete("/users/{user_id}/read/{ou_id}")
     async def delete_read_access(self, user_id: str, ou_id: str):
         return await self.service.remove_read_access(user_id, ou_id)
 
-    @Transactional()
     @router.delete("/users/{user_id}/write/{ou_id}")
     async def delete_write_access(self, user_id: str, ou_id: str):
         return await self.service.remove_write_access(user_id, ou_id)

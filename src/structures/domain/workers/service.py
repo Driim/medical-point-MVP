@@ -6,8 +6,9 @@ from neo4j.exceptions import ConstraintError
 from src.common.context.context import get_request
 from src.common.models import PaginationQueryParams
 from src.common.utils import update_model_by_dto
-from src.structures.dal.ou_repository import OrganizationUnitsRepository
-from src.structures.dal.workers_repository import WorkersRepository
+from src.structures.dal.arango.ou_repository import ArangoOrganizationUnitsRepository
+from src.structures.dal.arango.workers_repository import ArangoWorkersRepository
+from src.structures.dal.neo4j.ou_repository import OrganizationUnitsRepository
 from src.structures.domain.users import UserService
 from src.structures.domain.users.exceptions import (
     ReadAccessException,
@@ -33,9 +34,9 @@ class WorkerService:
     def __init__(
         self,
         user_service: UserService = Depends(UserService),
-        repository: WorkersRepository = Depends(WorkersRepository),
-        organization_unit_repo: OrganizationUnitsRepository = Depends(
-            OrganizationUnitsRepository,
+        repository: ArangoWorkersRepository = Depends(ArangoWorkersRepository),
+        organization_unit_repo: ArangoOrganizationUnitsRepository = Depends(
+            ArangoOrganizationUnitsRepository,
         ),
         request: Request = Depends(get_request),
     ) -> None:

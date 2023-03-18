@@ -22,6 +22,7 @@ sqlalchemy = "^1.4.46"
 clickhouse-sqlalchemy = {git = "https://github.com/xzkostyan/clickhouse-sqlalchemy"}
 aiokafka = "^0.8.0"
 faker = "^16.6.0"
+aioarango = {git = "https://github.com/Driim/aioarango.git"}
 
 
 [tool.poetry.group.dev.dependencies]

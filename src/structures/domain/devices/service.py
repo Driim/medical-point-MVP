@@ -5,10 +5,14 @@ from fastapi import Depends, Request
 from src.common.context.context import get_request
 from src.common.models import PaginationQueryParams
 from src.common.utils import update_model_by_dto
-from src.structures.dal.devices_repository import DevicesRepository
-from src.structures.dal.ou_repository import OrganizationUnitsRepository
-from src.structures.dal.outlets_repository import OutletsRepository
-from src.structures.dal.workers_repository import WorkersRepository
+from src.structures.dal.arango.devices_repository import ArangoDevicesRepository
+from src.structures.dal.arango.ou_repository import ArangoOrganizationUnitsRepository
+from src.structures.dal.arango.outlets_repository import ArangoOutletsRepository
+from src.structures.dal.arango.workers_repository import ArangoWorkersRepository
+from src.structures.dal.neo4j.devices_repository import DevicesRepository
+from src.structures.dal.neo4j.ou_repository import OrganizationUnitsRepository
+from src.structures.dal.neo4j.outlets_repository import OutletsRepository
+from src.structures.dal.neo4j.workers_repository import WorkersRepository
 from src.structures.domain.devices.exceptions import DeviceNotFound
 from src.structures.domain.devices.models import (
     Device,
@@ -35,12 +39,12 @@ class DeviceService:
     def __init__(
         self,
         user_service: UserService = Depends(UserService),
-        repository: DevicesRepository = Depends(DevicesRepository),
-        organization_unit_repo: OrganizationUnitsRepository = Depends(
-            OrganizationUnitsRepository,
+        repository: ArangoDevicesRepository = Depends(ArangoDevicesRepository),
+        organization_unit_repo: ArangoOrganizationUnitsRepository = Depends(
+            ArangoOrganizationUnitsRepository,
         ),
-        outlet_repo: OutletsRepository = Depends(OutletsRepository),
-        worker_repo: WorkersRepository = Depends(WorkersRepository),
+        outlet_repo: ArangoOutletsRepository = Depends(ArangoOutletsRepository),
+        worker_repo: ArangoWorkersRepository = Depends(ArangoWorkersRepository),
         request: Request = Depends(get_request),
     ):
         self._user_service = user_service

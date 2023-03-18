@@ -6,7 +6,6 @@ from fastapi_restful.cbv import cbv
 
 from src.common.auth.auth import get_user_id
 from src.common.models import PaginationQueryParams
-from src.common.neo4j import Transactional, TransactionalRouter
 from src.structures.domain.organization_units.models import (
     OrganizationUnit,
     OrganizationUnitCreateDto,
@@ -17,7 +16,7 @@ from src.structures.domain.organization_units.models import (
 from src.structures.domain.organization_units.service import OrganizationUnitService
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Organization Units"], route_class=TransactionalRouter)
+router = APIRouter(tags=["Organization Units"])
 
 
 @cbv(router)
@@ -39,7 +38,6 @@ class OrganizationUnitsController:
         dto = OrganizationUnitFindDto(active=active, child_of=child_of)
         return await self.service.find(dto, pagination, self.user_id)
 
-    @Transactional()
     @router.post(
         "/organization-units",
         response_model=OrganizationUnit,
@@ -48,7 +46,6 @@ class OrganizationUnitsController:
     async def create_organization_unit(self, dto: OrganizationUnitCreateDto):
         return await self.service.create(dto, self.user_id)
 
-    @Transactional()
     @router.put("/organization-units/{id}", response_model=OrganizationUnit)
     async def update_organization_unit(
         self,
@@ -57,7 +54,6 @@ class OrganizationUnitsController:
     ):
         return await self.service.update(id, dto, self.user_id)
 
-    @Transactional()
     @router.delete("/organization-units/{id}")
     async def delete_organization_unit(
         self,
@@ -65,7 +61,6 @@ class OrganizationUnitsController:
     ):
         return await self.service.delete(id, self.user_id)
 
-    @Transactional()
     @router.patch("/organization-units/{id}/activate", response_model=OrganizationUnit)
     async def activate_organization_unit(
         self,
@@ -73,7 +68,6 @@ class OrganizationUnitsController:
     ):
         return await self.service.activate(id, self.user_id)
 
-    @Transactional()
     @router.patch(
         "/organization-units/{id}/deactivate",
         response_model=OrganizationUnit,
@@ -81,7 +75,6 @@ class OrganizationUnitsController:
     async def deactivate_organization_unit(self, id: str):
         return await self.service.deactivate(id, self.user_id)
 
-    @Transactional()
     @router.patch(
         "/organization-units/{id}/change-parent/{new_parent}",
         response_model=OrganizationUnit,
