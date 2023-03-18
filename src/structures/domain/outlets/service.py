@@ -5,8 +5,8 @@ from fastapi import Depends, Request
 from src.common.context.context import get_request
 from src.common.models import PaginationQueryParams
 from src.common.utils import update_model_by_dto
-from src.structures.dal.ou_repository import OrganizationUnitsRepository
-from src.structures.dal.outlets_repository import OutletsRepository
+from src.structures.dal.arango.ou_repository import ArangoOrganizationUnitsRepository
+from src.structures.dal.arango.outlets_repository import ArangoOutletsRepository
 from src.structures.domain.outlets.exceptions import OutletNotFound
 from src.structures.domain.outlets.models import (
     Outlet,
@@ -29,9 +29,9 @@ class OutletService:
     def __init__(
         self,
         user_service: UserService = Depends(UserService),
-        repository: OutletsRepository = Depends(OutletsRepository),
-        organization_unit_repo: OrganizationUnitsRepository = Depends(
-            OrganizationUnitsRepository,
+        repository: ArangoOutletsRepository = Depends(ArangoOutletsRepository),
+        organization_unit_repo: ArangoOrganizationUnitsRepository = Depends(
+            ArangoOrganizationUnitsRepository,
         ),
         request: Request = Depends(get_request),
     ):

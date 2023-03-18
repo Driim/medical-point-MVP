@@ -6,7 +6,6 @@ from fastapi_restful.cbv import cbv
 
 from src.common.auth import get_user_id
 from src.common.models import PaginationQueryParams
-from src.common.neo4j import Transactional, TransactionalRouter
 from src.structures.domain.outlets.models import (
     Outlet,
     OutletCreateDto,
@@ -17,7 +16,7 @@ from src.structures.domain.outlets.models import (
 from src.structures.domain.outlets.service import OutletService
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Outlets"], route_class=TransactionalRouter)
+router = APIRouter(tags=["Outlets"])
 
 
 @cbv(router)
@@ -43,7 +42,6 @@ class OutletsController:
 
         return await self.service.find(dto, pagination, self.user_id)
 
-    @Transactional()
     @router.post(
         "/outlets",
         response_model=Outlet,
@@ -52,17 +50,14 @@ class OutletsController:
     async def create_outlet(self, dto: OutletCreateDto):
         return await self.service.create(dto, self.user_id)
 
-    @Transactional()
     @router.put("/outlets/{outlet_id}", response_model=Outlet)
     async def update_outlet(self, outlet_id: str, dto: OutletUpdateDto):
         return await self.service.update(outlet_id, dto, self.user_id)
 
-    @Transactional()
     @router.delete("/outlets/{outlet_id}")
     async def delete_outlet(self, outlet_id: str):
         return await self.service.delete(outlet_id, self.user_id)
 
-    @Transactional()
     @router.patch("/outlets/{outlet_id}/activate", response_model=Outlet)
     async def activate_outlet(
         self,
@@ -70,12 +65,10 @@ class OutletsController:
     ):
         return await self.service.activate(outlet_id, self.user_id)
 
-    @Transactional()
     @router.patch("/outlets/{outlet_id}/deactivate", response_model=Outlet)
     async def deactivate_outlet(self, outlet_id: str):
         return await self.service.deactivate(outlet_id, self.user_id)
 
-    @Transactional()
     @router.patch(
         "/outlets/{outlet_id}/change-parent/{new_parent_id}",
         response_model=Outlet,
