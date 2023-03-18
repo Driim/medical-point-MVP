@@ -74,7 +74,7 @@ class ArangoDevicesRepository:
         pass
 
     async def can_take_exam_on_device(self, device_id: str, worker_id: str) -> bool:
-        # TODO: implement
+        # Not needed, check is in service
         return True
 
     async def org_have_agreement(self, device_id: str, worker_id: str) -> bool:

@@ -204,19 +204,13 @@ class DeviceService:
         return await self._base_to_device(base)
 
     async def can_take_exam_on_device(self, device_id: str, worker_id: str):
-        can_take_exam = await self._repository.can_take_exam_on_device(
-            device_id, worker_id
-        )
-        if not can_take_exam:
-            can_take_exam = await self._repository.org_have_agreement(
-                device_id, worker_id
-            )
-
-        if not can_take_exam:
-            raise DeviceExamAccessException(worker_id, device_id)
-
         base_device = await self._get_by_id(device_id)
         device = await self._base_to_device(base_device)
+
+        logger.info(device)
+
+        if not device.is_active_tree:
+            raise DeviceExamAccessException(worker_id, device_id)
 
         base_worker = await self._worker_repo.get_by_id(worker_id)
         # copypaste from worker service
@@ -226,6 +220,14 @@ class DeviceService:
             self._request.app.state.ROOT_OU,
         )
 
+        logger.info(base_worker)
+        logger.info(ou_path)
+
+        if ou_path[0] != device.materialized_path[0]:
+            have_agreement = await self._repository.org_have_agreement(device_id, worker_id)
+            if not have_agreement:
+                raise DeviceExamAccessException(worker_id, device_id)
+
         is_active_tree = False
         if base_worker.active is True:
             is_active_tree = await self._org_unit_repo.is_in_active_tree(
@@ -233,8 +235,11 @@ class DeviceService:
                 self._request.app.state.ROOT_OU,
             )
 
+        if not is_active_tree:
+            raise DeviceExamAccessException(worker_id, device_id)
+
         worker = Worker(
-            is_active_tree=base_worker.active and is_active_tree,
+            is_active_tree=is_active_tree,
             materialized_path=ou_path,
             **base_worker.dict(),
         )

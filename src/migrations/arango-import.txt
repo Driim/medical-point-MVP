@@ -1,0 +1,133 @@
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "organization-units.csv" \
+    --type csv \
+    --headers-file "organization_unit_header.csv" \
+    --collection "organizations_units" \
+    --translate "id=_key" \
+    --remove-attribute "ignore" \
+    --datatype active=boolean
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "ou_to_ou.csv" \
+    --type csv \
+    --headers-file "ou_to_ou_header.csv" \
+    --collection "child_of" \
+    --from-collection-prefix organizations_units \
+    --to-collection-prefix organizations_units
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "workers.csv" \
+    --type csv \
+    --headers-file "workers_header.csv" \
+    --collection "workers" \
+    --translate "id=_key" \
+    --datatype active=boolean \
+    --datatype fio=string \
+    --datatype drivers_license=string \
+    --datatype organization_unit_id=string
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "workers_to_ou.csv" \
+    --type csv \
+    --headers-file "worker_to_ou_header.csv" \
+    --collection "work_in" \
+    --from-collection-prefix workers \
+    --to-collection-prefix organizations_units
+
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "outlets_to_ou.csv" \
+    --type csv \
+    --headers-file "outlets_to_ou_header.csv" \
+    --collection "belong_to" \
+    --from-collection-prefix outlets \
+    --to-collection-prefix organizations_units
+
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "workers_to_ou.csv" \
+    --type csv \
+    --headers-file "worker_to_ou_header.csv" \
+    --collection "work_in" \
+    --from-collection-prefix workers \
+    --to-collection-prefix organizations_units
+
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "outlets.csv" \
+    --type csv \
+    --headers-file "outlets_header.csv" \
+    --collection "outlets" \
+    --translate "id=_key" \
+    --datatype active=boolean \
+    --datatype name=string \
+    --datatype address=string \
+    --datatype organization_unit_id=string
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "outlets_to_ou.csv" \
+    --type csv \
+    --headers-file "outlets_to_ou_header.csv" \
+    --collection "belong_to" \
+    --from-collection-prefix outlets \
+    --to-collection-prefix organizations_units
+
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "devices.csv" \
+    --type csv \
+    --headers-file "devices_header.csv" \
+    --collection "devices" \
+    --translate "id=_key" \
+    --datatype active=boolean \
+    --datatype license=string \
+    --datatype outlet_id=string
+
+
+/Users/dmitriyfalko/work/arangodb3-client-macos-3.10.4_x86_64/bin/arangoimport \
+    --server.endpoint="http+tcp://51.250.84.34:8529" \
+    --server.database="structures" \
+    --server.password="yoPnrMSKgAqJdW0tq3acEEqMfFgTz7Atp8uYerWk-7Y" \
+    --server.username="root" \
+    --file "devices_to_outlets.csv" \
+    --type csv \
+    --headers-file "device_to_outlet_header.csv" \
+    --collection "located_at" \
+    --from-collection-prefix devices \
+    --to-collection-prefix outlets

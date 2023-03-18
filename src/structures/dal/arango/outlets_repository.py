@@ -51,10 +51,10 @@ class ArangoOutletsRepository:
         graph = self.database.graph(self.GRAPH)
         collection = graph.vertex_collection(self.COLLECTION)
 
-        worker = await collection.get(outlet_id)
+        outlet = await collection.get(outlet_id)
         return OutletBase(
-            id=worker['_key'],
-            **worker
+            id=outlet['_key'],
+            **outlet
         )
 
     async def find(

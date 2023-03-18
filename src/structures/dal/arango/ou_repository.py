@@ -61,14 +61,21 @@ class ArangoOrganizationUnitsRepository:
 
         ou = await ou_collection.get(organization_unit_id)
 
+        # getting parent
+        cursor = await self.database.aql.execute(
+            'FOR v IN 1..1 OUTBOUND @child child_of RETURN v._key',
+            bind_vars={'child': ou.get('_id')}
+        )
+        parent_id = await cursor.next()
+
         return OrganizationUnitBase(
             id=ou['_key'],
             name=ou['name'],
             inn=ou['inn'],
             kpp=ou['kpp'],
             active=ou['active'],
-            filler=ou['filler'],
-            parent_organization_unit=ou['parent_id']
+            filler=ou.get('filler'),
+            parent_organization_unit=parent_id
         )
 
     async def find(
@@ -92,8 +99,36 @@ class ArangoOrganizationUnitsRepository:
             root_ou: str,
     ) -> list[str]:
         # TODO: implement
-        return list()
+        cursor = await self.database.aql.execute(
+            """
+            FOR e IN OUTBOUND 
+            SHORTEST_PATH @start 
+            TO @end child_of 
+            RETURN e._key
+            """,
+            bind_vars={
+                'start': "organizations_units/" + organization_unit,
+                'end': "organizations_units/" + root_ou,
+            }
+        )
+
+        return [doc async for doc in cursor]
 
     async def is_in_active_tree(self, organization_unit: str, root_ou: str) -> bool:
-        # TODO: implement
-        return True
+        cursor = await self.database.aql.execute(
+            """
+            FOR e IN OUTBOUND 
+            SHORTEST_PATH @start 
+            TO @end child_of 
+            RETURN e.active
+            """,
+            bind_vars={
+                'start': "organizations_units/" + organization_unit,
+                'end': "organizations_units/" + root_ou,
+            }
+        )
+
+        state = [doc async for doc in cursor]
+
+        logger.info(state)
+        return False if False in state else True

@@ -120,8 +120,35 @@ class ArangoUsersRepository:
             root_ou: str,
             access_right: str,
     ) -> bool:
-        # TODO: implement
-        return True
+        cursor_ou = await self.database.aql.execute(
+            """
+            FOR e IN OUTBOUND 
+            SHORTEST_PATH @start 
+            TO @end child_of 
+            RETURN e._key
+            """,
+            bind_vars={
+                'start': "organizations_units/" + organization_id,
+                'end': "organizations_units/" + root_ou,
+            }
+        )
+
+        ou_path = [doc async for doc in cursor_ou]
+
+        cursor_user = await self.database.aql.execute(
+            """
+            FOR e IN OUTBOUND @user @access
+            RETURN e._key
+            """,
+            bind_vars={
+                'user': "users/" + user_id,
+                'access': access_right.lower(),
+            }
+        )
+
+        orgs = [doc async for doc in cursor_user]
+        intersection = set(ou_path).intersection(orgs)
+        return True if len(intersection) else False
 
     async def have_write_access_by_outlet(
             self,
@@ -130,5 +157,13 @@ class ArangoUsersRepository:
             root_ou: str,
             access_right: str,
     ) -> bool:
-        # TODO:  implement
-        return True
+        graph = self.database.graph("outlets_graph")
+        collection = graph.vertex_collection("outlets")
+        outlet = await collection.get(outlet_id)
+
+        return await self.has_access_right(
+            user_id,
+            outlet.get('organization_unit_id'),
+            root_ou,
+            access_right
+        )
