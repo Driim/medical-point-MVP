@@ -1,6 +1,7 @@
 # import uptrace
 from fastapi import FastAPI
 
+from src.common.arango import initialize_arango_middleware
 from src.common.context import initialize_context_middleware
 from src.common.health_checks import register_health_checks
 from src.common.logger import initialize_logger
@@ -14,7 +15,6 @@ from src.structures.controllers.outlets import register_outlets_router
 from src.structures.controllers.users import register_users_router
 from src.structures.controllers.workers import register_workers_router
 
-# from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 
 def mock_health_check() -> bool:
@@ -28,21 +28,13 @@ def initialize_application(config: Configuration) -> FastAPI:
         version="0.1",
     )
 
-    # uptrace.configure_opentelemetry(
-    #     # Copy DSN here or use UPTRACE_DSN env var.
-    #     dsn=config.uptrace_dsn,
-    #     service_name="Org Structures",
-    #     service_version="1.0.0",
-    # )
-
-    # FastAPIInstrumentor.instrument_app(application)
-
     application.state.ROOT_OU = config.root_ou
 
     health_checks = []
 
     # Middleware part
     initialize_database_middleware(application, config.neo4j, health_checks)
+    initialize_arango_middleware(application, config.arango, health_checks)
     initialize_context_middleware(application)
 
     # Router part

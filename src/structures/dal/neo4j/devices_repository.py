@@ -11,7 +11,7 @@ from src.common.utils.cypher_utils import (
     prepare_get_by_id_query,
     prepare_save_query,
 )
-from src.structures.dal.utils import transform_to_dict
+from src.structures.dal.neo4j.utils import transform_to_dict
 from src.structures.domain.devices.models import (
     DeviceBase,
     DeviceCreateDto,

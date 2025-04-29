@@ -5,7 +5,7 @@ from neo4j import AsyncSession, AsyncTransaction
 
 from src.common.models import Pagination, PaginationQueryParams
 from src.common.neo4j import get_session, get_transaction
-from src.structures.dal.utils import transform_to_dict
+from src.structures.dal.neo4j.utils import transform_to_dict
 from src.structures.domain.organization_units.models import (
     OrganizationUnitBase,
     OrganizationUnitCreateDto,

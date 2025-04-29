@@ -1,7 +1,7 @@
 from fastapi import Depends, Request
 
 from src.common.context.context import get_request
-from src.structures.dal.users_repository import UsersRepository
+from src.structures.dal.arango.users_repository import ArangoUsersRepository
 from src.structures.domain.users.exceptions import UserNotFound
 from src.structures.domain.users.models import User, UserCreateDto
 
@@ -9,7 +9,7 @@ from src.structures.domain.users.models import User, UserCreateDto
 class UserService:
     def __init__(
         self,
-        repository: UsersRepository = Depends(UsersRepository),
+        repository: ArangoUsersRepository = Depends(ArangoUsersRepository),
         request: Request = Depends(get_request),
     ) -> None:
         self.repository = repository

@@ -6,7 +6,6 @@ from fastapi_restful.cbv import cbv
 
 from src.common.auth import get_user_id
 from src.common.models import PaginationQueryParams
-from src.common.neo4j import Transactional, TransactionalRouter
 from src.structures.domain.devices.models import (
     Device,
     DeviceCreateDto,
@@ -18,7 +17,7 @@ from src.structures.domain.devices.models import (
 from src.structures.domain.devices.service import DeviceService
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Devices"], route_class=TransactionalRouter)
+router = APIRouter(tags=["Devices"])
 
 
 @cbv(router)
@@ -45,7 +44,6 @@ class DevicesController:
         )
         return await self.service.find(dto, pagination, self.user_id)
 
-    @Transactional()
     @router.post(
         "/devices",
         response_model=Device,
@@ -54,17 +52,14 @@ class DevicesController:
     async def create_device(self, dto: DeviceCreateDto):
         return await self.service.create(dto, self.user_id)
 
-    @Transactional()
     @router.put("/devices/{device_id}", response_model=Device)
     async def update_device(self, device_id: str, dto: DeviceUpdateDto):
         return await self.service.update(device_id, dto, self.user_id)
 
-    @Transactional()
     @router.delete("/devices/{device_id}")
     async def delete_device(self, device_id: str):
         return await self.service.delete(device_id, self.user_id)
 
-    @Transactional()
     @router.patch("/devices/{device_id}/activate", response_model=Device)
     async def activate_device(
         self,
@@ -72,12 +67,10 @@ class DevicesController:
     ):
         return await self.service.activate(device_id, self.user_id)
 
-    @Transactional()
     @router.patch("/devices/{device_id}/deactivate", response_model=Device)
     async def deactivate_outlet(self, device_id: str):
         return await self.service.deactivate(device_id, self.user_id)
 
-    @Transactional()
     @router.patch(
         "/devices/{device_id}/change-outlet/{new_outlet_id}",
         response_model=Device,

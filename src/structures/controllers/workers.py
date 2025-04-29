@@ -17,7 +17,7 @@ from src.structures.domain.workers.models import (
 from src.structures.domain.workers.service import WorkerService
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Workers"], route_class=TransactionalRouter)
+router = APIRouter(tags=["Workers"])
 
 
 @cbv(router)
@@ -42,7 +42,6 @@ class WorkersController:
         )
         return await self.service.find(dto, pagination, self.user_id)
 
-    @Transactional()
     @router.post(
         "/workers",
         response_model=Worker,
@@ -51,7 +50,6 @@ class WorkersController:
     async def create_worker(self, dto: WorkerCreateDto):
         return await self.service.create(dto, self.user_id)
 
-    @Transactional()
     @router.put("/workers/{worker_id}", response_model=Worker)
     async def update_worker(self, worker_id: str, dto: WorkerUpdateDto):
         return await self.service.update(worker_id, dto, self.user_id)
@@ -61,7 +59,6 @@ class WorkersController:
     async def delete_worker(self, worker_id: str):
         return await self.service.delete(worker_id, self.user_id)
 
-    @Transactional()
     @router.patch("/workers/{worker_id}/activate", response_model=Worker)
     async def activate_worker(
         self,
@@ -69,12 +66,10 @@ class WorkersController:
     ):
         return await self.service.activate(worker_id, self.user_id)
 
-    @Transactional()
     @router.patch("/workers/{worker_id}/deactivate", response_model=Worker)
     async def deactivate_worker(self, worker_id: str):
         return await self.service.deactivate(worker_id, self.user_id)
 
-    @Transactional()
     @router.patch(
         "/workers/{worker_id}/change-organization/{new_parent_id}",
         response_model=Worker,

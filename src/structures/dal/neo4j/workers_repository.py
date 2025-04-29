@@ -12,27 +12,26 @@ from src.common.utils.cypher_utils import (
     prepare_get_by_id_query,
     prepare_save_query,
 )
-from src.structures.dal.utils import transform_to_dict
-from src.structures.domain.outlets.models import (
-    OutletBase,
-    OutletCreateDto,
-    OutletFindDto,
-    OutletPaginated,
+from src.structures.dal.neo4j.utils import transform_to_dict
+from src.structures.domain.workers.models import (
+    WorkerBase,
+    WorkerCreateDto,
+    WorkerFindDto,
+    WorkerPaginatedDto,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class OutletsRepository:
-    node_labels: list[str] = ["Outlet"]
-    relation: str = "BELONG_TO"
+class WorkersRepository:
+    node_labels: list[str] = ["Worker"]
+    relation: str = "WORK_IN"
 
     def __init__(
         self,
         session: AsyncSession = Depends(get_session),
         transaction: AsyncTransaction | None = Depends(get_transaction),
-    ):
-        # TODO: move all this code to separate class
+    ) -> None:
         self.session = session
         self.transaction = transaction
         self.tx = transaction if transaction else session
@@ -41,7 +40,7 @@ class OutletsRepository:
         if self.transaction is None:
             raise Exception("This operation should be done in transactions")
 
-    async def create(self, dto: OutletCreateDto) -> OutletBase:
+    async def create(self, dto: WorkerCreateDto) -> WorkerBase:
         self._check_transaction()
 
         params = transform_to_dict(dto)
@@ -53,47 +52,47 @@ class OutletsRepository:
             params,
             self.relation,
         )
-        query += " RETURN o { .*, organization_unit_id: p.id } as outlet"
+        query += " RETURN o { .*, organization_unit_id: p.id } as worker"
 
         result = await (await self.tx.run(query, **params)).single()
-        return OutletBase(**result["outlet"])
+        return WorkerBase(**result["worker"])
 
-    async def delete(self, outlet: OutletBase) -> None:
+    async def delete(self, worker: WorkerBase) -> None:
         self._check_transaction()
 
         query = prepare_delete_query(self.node_labels)
 
-        await (await self.tx.run(query, id=outlet.id)).single()
+        await (await self.tx.run(query, id=worker.id)).single()
 
-    async def save(self, outlet: OutletBase) -> OutletBase:
+    async def save(self, worker: WorkerBase) -> WorkerBase:
         self._check_transaction()
 
-        params = transform_to_dict(outlet)
+        params = transform_to_dict(worker)
         del params["id"]
 
         query = prepare_save_query(self.node_labels, self.relation, params)
-        query += " RETURN o { .*, organization_unit_id: p.id } as outlet\n"
+        query += " RETURN o { .*, organization_unit_id: p.id } as worker\n"
 
-        result = await (await self.tx.run(query, **params, id=outlet.id)).single()
-        return OutletBase(**result["outlet"])
+        result = await (await self.tx.run(query, **params, id=worker.id)).single()
+        return WorkerBase(**result["worker"])
 
-    async def get_by_id(self, outlet_id: str) -> OutletBase:
+    async def get_by_id(self, worker_id: str) -> WorkerBase:
         query = prepare_get_by_id_query(self.node_labels, self.relation)
-        query += " RETURN o { .*, organization_unit_id: p.id } as outlet\n"
+        query += " RETURN o { .*, organization_unit_id: p.id } as worker\n"
 
-        result = await (await self.tx.run(query, id=outlet_id)).single()
-        return OutletBase(**result["outlet"]) if result is not None else None
+        result = await (await self.tx.run(query, id=worker_id)).single()
+        return WorkerBase(**result["worker"]) if result is not None else None
 
     async def find(
         self,
-        dto: OutletFindDto,
+        dto: WorkerFindDto,
         available_ou: list[str],
         pagination: PaginationQueryParams,
-    ) -> OutletPaginated:
+    ) -> WorkerPaginatedDto:
         params = transform_to_dict(dto)
 
-        if "child_of" in params:
-            del params["child_of"]
+        if "child_of_organization_unit" in params:
+            del params["child_of_organization_unit"]
 
         lines = []
         if params:
@@ -115,7 +114,9 @@ class OutletsRepository:
         ).single()
 
         query += " RETURN o"
-        query += f" SKIP {(pagination.page - 1) * pagination.limit} LIMIT {pagination.limit}"  # noqa
+        query += (
+            f" SKIP {(pagination.page - 1) * pagination.limit} LIMIT {pagination.limit}"
+        )
 
         result = await self.tx.run(query, available_ou=available_ou, **params)
         result_pagination = Pagination(
@@ -126,22 +127,25 @@ class OutletsRepository:
 
         retval = []
         async for record in result:
-            retval.append(OutletBase(**record["o"]))
+            retval.append(WorkerBase(**record["o"]))
 
-        return OutletPaginated(pagination=result_pagination, data=retval)
+        return WorkerPaginatedDto(pagination=result_pagination, data=retval)
 
     async def change_parent_ou(
         self,
-        outlet: OutletBase,
+        worker: WorkerBase,
         new_parent_id: str,
-    ) -> OutletBase:
+    ) -> WorkerBase:
         query = "MATCH (n_parent:OrganizationUnit { id: $new_parent_id }) "
         query += prepare_get_by_id_query(self.node_labels, self.relation)
         query += " DELETE r "
-        query += f"CREATE (o)-[:{self.relation}]->(n_parent) "
+        query += f"CREATE (o)-[:{self.relation}]->(n_parent)"
 
         await (
-            await self.tx.run(query, id=outlet.id, new_parent_id=new_parent_id)
+            await self.tx.run(query, id=worker.id, new_parent_id=new_parent_id)
         ).single()
 
-        return await self.get_by_id(outlet.id)
+        # worker also had organization_unit_id because uses uniq index,
+        # so we need to update both relation and data
+        worker.organization_unit_id = new_parent_id
+        return await self.save(worker)

@@ -5,7 +5,6 @@ from fastapi import Depends, Request
 from src.common.context.context import get_request
 from src.common.models import PaginationQueryParams
 from src.common.utils.update_model import update_model_by_dto
-from src.structures.dal.ou_repository import OrganizationUnitsRepository
 from src.structures.domain.organization_units.exceptions import OrganizationUnitNotFound
 from src.structures.domain.users import UserService
 
@@ -18,6 +17,7 @@ from .models import (
     OrganizationUnitPaginated,
     OrganizationUnitUpdateDto,
 )
+from ...dal.arango.ou_repository import ArangoOrganizationUnitsRepository
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +27,11 @@ class OrganizationUnitService:
         self,
         user_service: UserService = Depends(UserService),
         request: Request = Depends(get_request),
-        repository: OrganizationUnitsRepository = Depends(OrganizationUnitsRepository),
+        arango_repo: ArangoOrganizationUnitsRepository = Depends(ArangoOrganizationUnitsRepository),
     ) -> None:
         self._user_service = user_service
         self.request = request
-        self.repository = repository
+        self.repository = arango_repo
 
     async def _base_to_organization_unit(
         self,
@@ -99,6 +99,7 @@ class OrganizationUnitService:
 
         dto.parent_organization_unit = None
         ou = await self.repository.create(dto, parent_organization_id)
+        logger.info(ou)
         return await self._base_to_organization_unit(ou)
 
     async def update(
